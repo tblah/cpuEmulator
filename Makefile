@@ -19,10 +19,16 @@ CPP=g++
 
 .PHONY: default
 default: $(DEFAULT_TARGET)
-	@echo Defaulted to $(DEFAULT_TARGET) target
 
-test: registerTest
+test: registerTest busTest
 	./registerTest
+	./busTest
+
+busTest: objects/busTest.o objects/debug.o
+	$(CPP) $(CPPOPTS) -o $@ objects/busTest.o objects/debug.o
+
+objects/busTest.o: emulator/Signal.h emulator/Bus.h test/busTest.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c test/busTest.cpp
 
 registerTest: objects/registerTest.o objects/debug.o
 	$(CPP) $(CPPOPTS) -o $@ objects/registerTest.o objects/debug.o

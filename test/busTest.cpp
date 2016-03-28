@@ -1,4 +1,4 @@
-// test for Register class
+// tests for Bus
 
 /*  This file is part of cpuEmulator.
     cpuEmulator is free software: you can redistribute it and/or modify
@@ -12,30 +12,32 @@
     You should have received a copy of the GNU General Public License
     along with picomips-cpu.  If not, see http://www.gnu.org/licenses/.*/
 
-#include "../emulator/Register.h"
 #include "../emulator/debug.h"
+#include "../emulator/Bus.h"
 #include <stdlib.h>
 
 int main( void ) {
-    debug( "Beginning tests of Register Class" );
-    Register<bool> DUT;
+    debug("Beginning Bus tests");
 
-    DUT.changeDriveSignal( true );
-    DUT.clockTick();
+    Bus<bool> DUT;
 
-    // test this value was propegated to the output
-    if ( DUT.getOutput() != true ) {
-        errExit( "Register input did not become output on clock tick" );
-    }
+    long ID = DUT.registerID();
 
-    DUT.changeDriveSignal( false );
+    // test that the ID is reasonable
+    if ( ID < 0 )
+        errExit( "BUS ID is negative" );
+    
+    DUT.claimOwnership( ID );
+    DUT.driveValue( ID, true );
 
-    // test this was not yet put on the output
-    if ( DUT.getOutput() != true ) {
-        errExit( "Register output changed too soon" );
-    }
+    // test that this value was given to the bus
+    if ( DUT.readValue() != true )
+        errExit( "Bus value is incorrect" );
 
-    debug( "all Register tests passed" );
+    DUT.surrenderOwnership( ID ); // see if this throws an errExit
+
+    debug("Bus tests all passed");
 
     return EXIT_SUCCESS;
 }
+
