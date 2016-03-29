@@ -20,10 +20,20 @@ CPP=g++
 .PHONY: default
 default: $(DEFAULT_TARGET)
 
-test: registerTest busTest registerFileTest
+test: registerTest busTest registerFileTest aluTest
 	@./registerTest
 	@./busTest
 	@./registerFileTest
+	@./aluTest
+
+aluTest: objects/aluTest.o objects/debug.o objects/alu.o
+	$(CPP) $(CPPOPTS) -o $@ objects/aluTest.o objects/debug.o objects/alu.o
+
+objects/aluTest.o: cpu/alu.h cpu/aluOps.h test/aluTest.cpp emulator/debug.h
+	$(CPP) $(CPPOPTS) -o $@ -c test/aluTest.cpp
+
+objects/alu.o: cpu/alu* emulator/debug.h emulator/Signal.h
+	$(CPP) $(CPPOPTS) -o $@ -c cpu/alu.cpp  
 
 registerFileTest: objects/registerFileTest.o objects/debug.o objects/registerFile.o
 	$(CPP) $(CPPOPTS) -o $@ objects/registerFileTest.o objects/debug.o objects/registerFile.o
