@@ -1,3 +1,6 @@
 *.swp
 newfileheader
 *.o
+registerTest
+busTest
+registerFileTest

@@ -12,6 +12,9 @@
     You should have received a copy of the GNU General Public License
     along with picomips-cpu.  If not, see http://www.gnu.org/licenses/.*/
 
+#ifndef  SIGNAL_H
+#define SIGNAL_H
+
 #include "debug.h"
 
 template <typename Type> class Signal {
@@ -37,6 +40,10 @@ template <typename Type> class Signal {
             return undefined;
         }
 
+        bool isDefined( void ) {
+            return !undefined;
+        }
+
         void setValue( Type GivenValue ) {
             undefined = false;
             Value = GivenValue;
@@ -50,3 +57,5 @@ template <typename Type> class Signal {
             return Value;
         }
 };
+
+#endif

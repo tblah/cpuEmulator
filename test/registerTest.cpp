@@ -35,7 +35,7 @@ int main( void ) {
         errExit( "Register output changed too soon" );
     }
 
-    debug( "all Register tests passed" );
+    debug( "All Register tests passed" );
 
     return EXIT_SUCCESS;
 }

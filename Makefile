@@ -12,7 +12,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with picomips-cpu.  If not, see http://www.gnu.org/licenses/.
 
-CPPOPTS=-Wpedantic -O2 -DDEBUG
+CPPOPTS=-Wpedantic -O2 -g -DDEBUG
 OUTNAME=cpuEmulator
 DEFAULT_TARGET=test
 CPP=g++
@@ -20,9 +20,19 @@ CPP=g++
 .PHONY: default
 default: $(DEFAULT_TARGET)
 
-test: registerTest busTest
-	./registerTest
-	./busTest
+test: registerTest busTest registerFileTest
+	@./registerTest
+	@./busTest
+	@./registerFileTest
+
+registerFileTest: objects/registerFileTest.o objects/debug.o objects/registerFile.o
+	$(CPP) $(CPPOPTS) -o $@ objects/registerFileTest.o objects/debug.o objects/registerFile.o
+
+objects/registerFileTest.o: test/registerfileTest.cpp cpu/RegisterFile.h emulator/debug.h
+	$(CPP) $(CPPOPTS) -o $@ -c test/registerfileTest.cpp
+
+objects/registerFile.o: emulator/Signal.h emulator/Register.h cpu/RegisterFile.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c cpu/RegisterFile.cpp
 
 busTest: objects/busTest.o objects/debug.o
 	$(CPP) $(CPPOPTS) -o $@ objects/busTest.o objects/debug.o

@@ -1,5 +1,6 @@
 // Template Class representing an arbitary length register containing an arbitary data type
-// Basically a wrapper around Signal to make changes only take effect on a clock tick and to undefine anything read from an unspecified input
+// Basically a wrapper around Signal to make changes only take effect on a clock tick.
+// Unlike a traditional register this will stay the same until a new Q is explicitly specified. Think of it like a Register plus a multiplexer controlled by a signal choosing between connecting Qnext to Q or to the external input. 
 
 /*  This file is part of cpuEmulator.
     cpuEmulator is free software: you can redistribute it and/or modify
@@ -26,11 +27,10 @@ template <typename Type> class Register {
 
         void clockTick( void ) {
             Q = QNext;
-
-            QNext.undefine(); // we don't want QNext to remember anything
         }
 
         Type getOutput( void ) {
+            Q.getValue();
             return Q.getValue();
         }
 
