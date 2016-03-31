@@ -15,12 +15,12 @@
 #ifndef ALU_OPS_H
 #define ALU_OPS_H
 
-typedef enum {
+enum class AluOps {
     add,
     sub,
     nand,
     lshift,
     nop
-} aluOps;
+};
 
 #endif

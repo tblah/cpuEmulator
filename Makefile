@@ -12,7 +12,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with cpuEmulator.  If not, see http://www.gnu.org/licenses/.
 
-CPPOPTS=-Wpedantic -O2 -g -DDEBUG
+CPPOPTS=-Wpedantic -O2 -g -DDEBUG -std=c++11
 OUTNAME=cpuEmulator
 DEFAULT_TARGET=test
 CPP=g++

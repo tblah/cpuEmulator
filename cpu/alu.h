@@ -34,7 +34,7 @@
 
 class ALU {
     private:
-        Signal<aluOps> control;
+        Signal<AluOps> control;
         Signal<int32_t> A;
         Signal<int32_t> B;
         
@@ -51,7 +51,7 @@ class ALU {
 
     public:
         ALU( void );
-        void setControl( aluOps controlIn );
+        void setControl( AluOps controlIn );
         void setA( int32_t Aval );
         void setB( int32_t Bval );
         void undefine( void ); // undefine signals (called from something sequential so that inputs can't remember their values)

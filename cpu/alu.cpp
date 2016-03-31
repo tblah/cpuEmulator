@@ -40,23 +40,23 @@ void ALU::updateOutputs( void ) {
 
         // calculate result
         switch ( control.getValue() ) {
-            case (add):
+            case (AluOps::add):
                 result.setValue( A.getValue() + B.getValue() );
                 break;
         
-            case (sub):
+            case (AluOps::sub):
                 result.setValue( A.getValue() - B.getValue() );
                 break;
     
-            case (nand):
+            case (AluOps::nand):
                 result.setValue( ~(A.getValue() & B.getValue()) );
                 break;
 
-            case (lshift):
+            case (AluOps::lshift):
                 result.setValue( A.getValue() << B.getValue() );
                 break;
 
-            case (nop):
+            case (AluOps::nop):
                 undefine();
                 return;
         }
@@ -71,7 +71,7 @@ ALU::ALU( void ) {
     upToDate = false;
 }
 
-void ALU::setControl( aluOps controlIn ) {
+void ALU::setControl( AluOps controlIn ) {
     upToDate = false;
     control.setValue( controlIn );
 }

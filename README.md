@@ -5,7 +5,7 @@ Written by Tom Eccles tde1g14 AT soton DOT ac DOT uk.
 
 C++ Emulator for simple processor of my own design.
 
-This work is licensed under the GPLv3 or any later version of the GPL as published by the Free Software Foundaiton (https://fsf.org).
+This work is licensed under the GPLv3 or any later version of the GPL as published by the Free Software Foundation (https://fsf.org).
 A copy of the GPLv3 is provided in the LICENCE file.
 
 ## Building
@@ -18,3 +18,4 @@ test - Unit tests for things
 emulator - Things for emulating digital electronics. Not specific to the CPU design
 cpu - Implementation of the CPU
 objects - compiled but unlinked objects from the build
+assembler - a *very* simple assembler for generating memory images for the cpu to execute
