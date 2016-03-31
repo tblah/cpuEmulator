@@ -35,14 +35,11 @@ objects/aluTest.o: cpu/alu.h cpu/aluOps.h test/aluTest.cpp emulator/debug.h
 objects/alu.o: cpu/alu* emulator/debug.h emulator/Signal.h
 	$(CPP) $(CPPOPTS) -o $@ -c cpu/alu.cpp  
 
-registerFileTest: objects/registerFileTest.o objects/debug.o objects/registerFile.o
-	$(CPP) $(CPPOPTS) -o $@ objects/registerFileTest.o objects/debug.o objects/registerFile.o
+registerFileTest: objects/debug.o objects/registerFileTest.o
+	$(CPP) $(CPPOPTS) -o $@ objects/registerFileTest.o objects/debug.o 
 
-objects/registerFileTest.o: test/registerfileTest.cpp cpu/RegisterFile.h emulator/debug.h
+objects/registerFileTest.o: emulator/RegisterFile.h emulator/debug.h
 	$(CPP) $(CPPOPTS) -o $@ -c test/registerfileTest.cpp
-
-objects/registerFile.o: emulator/Signal.h emulator/Register.h cpu/RegisterFile.cpp
-	$(CPP) $(CPPOPTS) -o $@ -c cpu/RegisterFile.cpp
 
 busTest: objects/busTest.o objects/debug.o
 	$(CPP) $(CPPOPTS) -o $@ objects/busTest.o objects/debug.o

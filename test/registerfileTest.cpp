@@ -12,14 +12,15 @@
     You should have received a copy of the GNU General Public License
     along with picomips-cpu.  If not, see http://www.gnu.org/licenses/. */
 
-#include "../cpu/RegisterFile.h"
+#include "../emulator/RegisterFile.h"
 #include "../emulator/debug.h"
 #include <stdlib.h>
+#include <stdint.h>
 
 int main( void ) {
     debug( "Begginning RegisterFile tests" );
     
-    RegisterFile DUT;
+    RegisterFile<int32_t, uint8_t, 16> DUT;
 
     // try a write
     DUT.setReadThisCycle( false );
