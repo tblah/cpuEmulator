@@ -10,7 +10,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
     You should have received a copy of the GNU General Public License
-    along with picomips-cpu.  If not, see http://www.gnu.org/licenses/.*/
+    along with cpuEmulator.  If not, see http://www.gnu.org/licenses/.*/
 
 #include "../cpu/alu.h"
 #include "../emulator/debug.h"

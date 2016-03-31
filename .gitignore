@@ -5,3 +5,4 @@ registerTest
 busTest
 registerFileTest
 aluTest
+ramTest

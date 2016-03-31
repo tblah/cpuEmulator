@@ -10,7 +10,7 @@
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 #   You should have received a copy of the GNU General Public License
-#   along with picomips-cpu.  If not, see http://www.gnu.org/licenses/.
+#   along with cpuEmulator.  If not, see http://www.gnu.org/licenses/.
 
 CPPOPTS=-Wpedantic -O2 -g -DDEBUG
 OUTNAME=cpuEmulator
@@ -20,11 +20,18 @@ CPP=g++
 .PHONY: default
 default: $(DEFAULT_TARGET)
 
-test: registerTest busTest registerFileTest aluTest
+test: registerTest busTest registerFileTest aluTest ramTest
 	@./registerTest
 	@./busTest
 	@./registerFileTest
 	@./aluTest
+	@./ramTest
+
+ramTest: objects/ramTest.o objects/debug.o
+	$(CPP) $(CPPOPTS) -o $@ objects/ramTest.o objects/debug.o
+
+objects/ramTest.o: test/ramTest.cpp cpu/ram.h emulator/Signal.h emulator/Register.h emulator/debug.h
+	$(CPP) $(CPPOPTS) -o $@ -c test/ramTest.cpp
 
 aluTest: objects/aluTest.o objects/debug.o objects/alu.o
 	$(CPP) $(CPPOPTS) -o $@ objects/aluTest.o objects/debug.o objects/alu.o

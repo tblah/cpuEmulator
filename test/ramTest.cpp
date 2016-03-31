@@ -1,4 +1,4 @@
-// test for Register class
+// test for RAM
 
 /*  This file is part of cpuEmulator.
     cpuEmulator is free software: you can redistribute it and/or modify
@@ -12,30 +12,32 @@
     You should have received a copy of the GNU General Public License
     along with cpuEmulator.  If not, see http://www.gnu.org/licenses/.*/
 
-#include "../emulator/Register.h"
+#include "../cpu/ram.h"
 #include "../emulator/debug.h"
 #include <stdlib.h>
+#include <stdint.h>
 
 int main( void ) {
-    debug( "Beginning tests of Register Class" );
-    Register<bool> DUT;
-
-    DUT.changeDriveSignal( true );
+    debug( "Starting RAM test" );
+    
+    RAM<int32_t, int32_t, 1024> DUT; // 1kB RAM with 32-bit addresses and data bus width
+    
+    // write
+    DUT.setReadingThisCycle( false );
+    DUT.setAddress( 0 );
+    DUT.setDataIn( 100 );
     DUT.clockTick();
 
-    // test this value was propegated to the output
-    if ( DUT.getOutput() != true ) {
-        errExit( "Register input did not become output on clock tick" );
-    }
+    // read back
+    DUT.setReadingThisCycle( true );
+    DUT.setAddress( 0 );
+    DUT.clockTick();
+    int32_t result = DUT.getOutput();
 
-    DUT.changeDriveSignal( false );
+    // test that we got back what we wrote
+    if ( result != 100 )
+        errExit( " RAM test failed. We did not read back what we wrote" );
 
-    // test this was not yet put on the output
-    if ( DUT.getOutput() != true ) {
-        errExit( "Register output changed too soon" );
-    }
-
-    debug( "All Register tests passed" );
-
+    debug( "All test passed for RAM" );
     return EXIT_SUCCESS;
 }
