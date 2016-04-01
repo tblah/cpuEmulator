@@ -26,16 +26,19 @@ class Instruction {
         uint32_t validateImmediate( int32_t Immediate );
 
         public:
-            // constructor for instructions with 3 registers as their arguements
+            // constructor for add, sub, nand and lshift
             Instruction( Opcode Op, uint8_t A, uint8_t B, uint8_t dest);
 
-            // constructor for instructions with 1 register and an immediate
+            // constructor for load and store
+            Instruction( Opcode Op, uint8_t A, uint8_t theOtherOne ); 
+
+            // constructor for addImmediate and subImmedeate
             Instruction( Opcode Op, uint8_t A, int32_t immediate );
 
-            // constructor for instructions with just 1 register as an arg
+            // constructor for jumpToReg, branchIfZero, branchIfPositive
             Instruction( Opcode Op, uint8_t A );
 
-            // constructor for instructions with just an opCode
+            // constructor for nop, halt
             Instruction( Opcode Op );
 
             uint32_t getObjectCode( void );

@@ -47,8 +47,12 @@ uint32_t Instruction::validateImmediate( int32_t immediate ) {
     return htobe32( result );
 }
 
-// all of these are going to assume that OpIn is correct. This will be tested on the file parse
 Instruction::Instruction( Opcode Op, uint8_t A, uint8_t B, uint8_t dest) {
+    //  test opcode matches this type
+    if ( (Op != Opcode::add) && (Op != Opcode::sub) && (Op != Opcode::nand)
+             && (Op != Opcode::lshift) )
+        errExit( "Incorrect instruction type for opcode" );
+
     // the format is as follows
     // |31 unused 20| |19 dest 15| |14 B 10| |9 A 5| |4 opcode 0|
     objectCode = 0;
@@ -58,7 +62,29 @@ Instruction::Instruction( Opcode Op, uint8_t A, uint8_t B, uint8_t dest) {
     objectCode |= static_cast<unsigned int>(Op); // top 3 bits should be zero so this won't break A
 }
 
+// for load theOtherOne=dest, store theOtherOne=B
+Instruction::Instruction( Opcode Op, uint8_t A, uint8_t theOtherOne ) {
+    if ( (Op != Opcode::store) && (Op != Opcode::load)  )
+        errExit( "Incorrect instruction type for opcode" );
+
+    // format is a sparser version of 'A, B, dest' type   
+    objectCode = 0;
+
+    if ( Op == Opcode::load )
+        objectCode |= validateRegister( theOtherOne ) << 15;
+
+    if ( Op == Opcode::store )
+        objectCode |= validateRegister( theOtherOne ) << 10;
+
+    objectCode |= validateRegister( A ) << 5;
+    objectCode |= static_cast<unsigned int>(Op); // top 3 bits should be zero so this won't break A
+}
+
 Instruction::Instruction( Opcode Op, uint8_t A, int32_t immediate ) {
+    // test opcode matches this type
+    if ( (Op != Opcode::addImmediate) && (Op != Opcode::subImmediate) )
+        errExit( "Incorrect instruction type for opcode" );
+
     // format
     // |31 immediate 10| |9 A 5| |4 opcode 0|
     objectCode = 0;
@@ -68,6 +94,11 @@ Instruction::Instruction( Opcode Op, uint8_t A, int32_t immediate ) {
 }
 
 Instruction::Instruction( Opcode Op, uint8_t A ) {
+    // test opcode matches this type
+    if ( (Op != Opcode::jumpToReg) && (Op != Opcode::branchIfZero) 
+            && (Op != Opcode::branchIfPositive) )
+        errExit( "Incorrect instruction type for opcode" );
+
     // format
     // |31 unused 10| |9 A 5| |4 opcode 0|
     objectCode = 0;
@@ -76,6 +107,9 @@ Instruction::Instruction( Opcode Op, uint8_t A ) {
 }
 
 Instruction::Instruction( Opcode Op ) {
+    if ( (Op != Opcode::halt) && (Op != Opcode::nop) )
+        errExit( "Incorrect instruction type for opcode" );
+
     objectCode = 0;
     objectCode |= static_cast<unsigned int>(Op);
 }

@@ -21,7 +21,7 @@ enum class Opcode {
     // arithmetic operations
     addImmediate = 0x01, //reg1 = (A) + (Imm)
     subImmediate = 0x02, //reg1 = (A) - (Imm)
-    add = 0x03, // (result) = (A) + (B)
+    add = 0x03, // (dest) = (A) + (B)
     sub = 0x04, // ditto...
     nand = 0x05,
     lshift = 0x06,
@@ -36,7 +36,7 @@ enum class Opcode {
     
     // memory operations
     //loadImmediate = 0x0D, 
-    load = 0x0E, // (result) = RAM((A))
+    load = 0x0E, // (dest) = RAM((A))
     store = 0x0F, // RAM((A)) = (B)
 
     // system
