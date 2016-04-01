@@ -19,28 +19,28 @@ enum class Opcode {
     nop = 0x00,
 
     // arithmetic operations
-    addImmediate = 0x01,
-    subImmediate = 0x02,
-    add = 0x03,
-    sub = 0x04,
+    addImmediate = 0x01, //reg1 = (A) + (Imm)
+    subImmediate = 0x02, //reg1 = (A) - (Imm)
+    add = 0x03, // (result) = (A) + (B)
+    sub = 0x04, // ditto...
     nand = 0x05,
     lshift = 0x06,
 
     // control operations
-    jumpToReg = 0x07,
-    jumpRelative = 0x08,
-    branchIfEqual = 0x09,
-    branchIfLessThan = 0x0A,
-    branchRelativeEqual = 0x0B,
-    branchRelativeLessThan = 0x0C,
+    jumpToReg = 0x07, // PC = (A)
+    //jumpRelative = 0x08, // relative jumps no longer planned for implementation
+    branchIfZero = 0x09, // if ( ALU_ZERO ) PC = (A)
+    branchIfPositive = 0x0A, // if ( ALU_POSITIVE ) PC = (A)
+    //branchRelativeEqual = 0x0B,
+    //branchRelativeLessThan = 0x0C,
     
     // memory operations
-    loadImmediate = 0x0D,
-    loadFull = 0x0E,
-    store = 0x0F,
+    //loadImmediate = 0x0D, 
+    load = 0x0E, // (result) = RAM((A))
+    store = 0x0F, // RAM((A)) = (B)
 
     // system
-    serialWrite = 0x10,
+    //serialWrite = 0x10, // todo
     halt = 0x11 
 };
 
