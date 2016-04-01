@@ -16,11 +16,29 @@
 #include "../emulator/debug.h"
 #include <stdlib.h>
 #include <stdint.h>
+#include <vector>
+#include "../assembler/Instruction.h"
+#include "../cpu/Opcodes.h"
 
 int main( void ) {
     debug( "Starting RAM test" );
+
+    // list of starting data
+    Instruction I1 = Instruction( Opcode::add, 1, 2, 3 );
+    uint32_t data = I1.getObjectCode();
+
+    std::vector<uint32_t> StartingData;
+    StartingData.push_back( data );
     
-    RAM<int32_t, int32_t, 1024> DUT; // 1kB RAM with 32-bit addresses and data bus width
+    RAM<uint32_t, uint32_t, 1024> DUT( StartingData ); // 1kB RAM with 32-bit addresses and data bus width
+
+    // test that the data was pre-loaded
+    DUT.setReadingThisCycle( true );
+    DUT.setAddress( 0 );
+    DUT.clockTick();
+    
+    if ( DUT.getOutput() != data )
+        errExit( "Data were not preloaded into RAM correctly" );
     
     // write
     DUT.setReadingThisCycle( false );

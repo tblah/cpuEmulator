@@ -29,6 +29,7 @@
 #include "../emulator/Signal.h"
 #include "../emulator/debug.h"
 #include <stdint.h>
+#include <vector>
 
 template <typename DataType, typename AddressType, unsigned int numBytes>
 class RAM {
@@ -39,6 +40,28 @@ class RAM {
         Signal<DataType> inoutData;
 
     public:
+        // constructor to start the ram with some initial data
+        RAM( const std::vector<DataType> &InitialData ) {
+            if ( InitialData.size() > (numBytes*sizeof(DataType)) )
+                errExit( "Initial RAM data does not fit" );
+
+            unsigned int nextRamAddr = 0;
+
+            for ( unsigned i = 0; i != InitialData.size(); ++i) {
+                // for each instruction
+                DataType fullObj = InitialData[i]; 
+
+                // copy data
+                for ( unsigned int j = 0; j < sizeof(DataType); ++j ) 
+                    data[nextRamAddr+j].changeDriveSignal( ( (int8_t*) &fullObj )[j] );
+                
+                nextRamAddr += sizeof(DataType);
+            }
+            
+            // we need a clock tick so that the data can be written
+            clockTick();
+        }
+
         void setAddress( AddressType address ) {
             if ( address > (numBytes-1) ) {
                 errExit( "RAM: specified address does not exist" );
