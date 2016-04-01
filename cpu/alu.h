@@ -49,6 +49,9 @@ class ALU {
         // have we already calculated the value of the outputs since the last change in inpus
         bool upToDate;
 
+        // handle different number representation between the machine we are doing this emulation on and the cpu design we are emulating
+        int32_t fixNumber( int32_t x );
+
     public:
         ALU( void );
         void setControl( AluOps controlIn );

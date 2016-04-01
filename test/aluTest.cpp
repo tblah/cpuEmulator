@@ -16,16 +16,15 @@
 #include "../emulator/debug.h"
 #include "../cpu/aluOps.h"
 #include <stdlib.h>
-
-#include <iostream>
+#include <endian.h>
 
 int main( void ) {
     debug( "Beginning ALU tests" );
     
     ALU DUT;
 
-    DUT.setA( 1 );
-    DUT.setB( 2 );
+    DUT.setA( (int32_t) htobe32(1) );
+    DUT.setB( (int32_t) htobe32(2) );
 
     // add
     DUT.setControl( AluOps::add );
@@ -38,17 +37,15 @@ int main( void ) {
 
     if ( (DUT.getResult() != -1) || DUT.getZeroFlag() || DUT.getPositiveFlag() )
         errExit( "failed test(s) for sub" );
-
+    
     // nand
     DUT.setControl( AluOps::nand );
 
-    // different architechtures do the sign differently so let's interpret the bits as unsigned for this test
+    // different architechtures might do the sign differently so let's interpret the bits as unsigned for this test
     int32_t signedResult = DUT.getResult();
     uint32_t testResult = *( (uint32_t*) &signedResult);
-    if ( (testResult != 0xFFFFFFFF) || DUT.getZeroFlag() ) {
-        std::cout << "test result is " << testResult << " zero flag is " << DUT.getZeroFlag() << std::endl;
+    if ( (testResult != 0xFFFFFFFF) || DUT.getZeroFlag() )
         errExit( "failed test(s) for nand" );
-    }
 
     // lshift
     DUT.setControl( AluOps::lshift );
@@ -61,12 +58,13 @@ int main( void ) {
     DUT.setControl( AluOps::nop );
 
     // zero flag
-    DUT.setA( -1 );
-    DUT.setB( 1 );
+    DUT.setA( - ( (int32_t) htobe32(1024)) );
+    DUT.setB( (int32_t) htobe32(1024) );
     DUT.setControl( AluOps::add );
 
-    if ( (DUT.getResult() != 0) || !DUT.getZeroFlag() || !DUT.getPositiveFlag() )
+    if ( (DUT.getResult() != 0) || !DUT.getZeroFlag() || !DUT.getPositiveFlag() ) {
         errExit( "failed test(s) for zero flag" );
+    }
 
     debug( "All ALU tests passed" );    
 

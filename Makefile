@@ -12,7 +12,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with cpuEmulator.  If not, see http://www.gnu.org/licenses/.
 
-CPPOPTS=-Wpedantic -O2 -g -DDEBUG -std=c++11
+# -fno-strict-aliasing is needed for cpu/ram.h clockTick() where inoutData is set to a cast of the read data to DataType. Dissabling strict aliasing will reduce the possible optomisations for the compiler but I do not consider this application performance-critical
+CPPOPTS=-Wall -Wpedantic -O2 -g -DDEBUG -std=c++11 -fno-strict-aliasing
 OUTNAME=cpuEmulator
 DEFAULT_TARGET=test
 CPP=g++

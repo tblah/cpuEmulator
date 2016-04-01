@@ -96,6 +96,9 @@ class RAM {
                             readData[i] = data[ addr.getValue() + i ].getOutput();
                         }
                         // interpret readData's bits as a DataType
+                        // this breaks strict aliasing so this file must have
+                        // -fstrict-aliasing as a compiler option
+                        // an alternative would be to mess about with unions 
                         inoutData.setValue( *( (DataType*) &readData ) );
 
                     } else { // writing

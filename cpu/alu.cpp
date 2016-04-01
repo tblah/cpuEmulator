@@ -16,6 +16,10 @@
 #include "alu.h"
 #include "../emulator/debug.h"
 
+// endian-ness stuff
+//#define __BSD_SOURCE // already defined by gcc. Other compilers may vary??
+#include <endian.h>
+
 void ALU::setFlags( void ) {
     int32_t val = result.getValue();
     
@@ -67,6 +71,28 @@ void ALU::updateOutputs( void ) {
     upToDate = true;
 }
 
+int32_t ALU::fixNumber( int32_t x ) {
+    // the cpu (and machine code assembled for it) is big endian
+    // and it uses two's compliment for all numbers
+    // this may not be true for the machine doing the emulating. This could break adding and subtracting so we will fix numbers here
+    
+    // the endian functions operate on unsigned numbers. This doesn't matter because we don't know which bits are which yet
+    int32_t result = abs(x);
+    uint32_t unsignedX = be32toh( *((uint32_t*) &result) );
+
+    // this won't overflow because we started with a signed number
+    result = (int32_t) unsignedX;
+
+    // assume the host machine uses two's compliment because there do not seem to be anything in standard libraries for this conversion. Most machines use two's compliment.
+    // source: http://www.cs.umd.edu/class/sum2003/cmsc311/Notes/Data/twoscomp.html
+    
+    // negative if the most significant bit is 1, otherwise positive
+    if (x >> 31) // = 1 for negative, = 0 for positive
+        result = -result;
+
+    return result;
+}
+
 ALU::ALU( void ) {
     upToDate = false;
 }
@@ -78,12 +104,12 @@ void ALU::setControl( AluOps controlIn ) {
 
 void ALU::setA( int32_t Aval ) {
     upToDate = false;
-    A.setValue( Aval );
+    A.setValue( fixNumber(Aval) );
 }
 
 void ALU::setB( int32_t Bval ) {
     upToDate = false;
-    B.setValue( Bval );
+    B.setValue( fixNumber(Bval) );
 }
 
 void ALU::undefine( void ) {
