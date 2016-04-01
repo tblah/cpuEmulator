@@ -14,11 +14,23 @@
 
 CPPOPTS=-Wpedantic -O2 -g -DDEBUG -std=c++11
 OUTNAME=cpuEmulator
-DEFAULT_TARGET=test
+DEFAULT_TARGET=asm
 CPP=g++
 
 .PHONY: default
 default: $(DEFAULT_TARGET)
+
+asm: objects/asmmain.o objects/asmCommandLineArgs.o objects/asmInstruction.o objects/debug.o
+	$(CPP) $(CPPOPTS) -o $@ objects/asmmain.o objects/asmCommandLineArgs.o objects/asmInstruction.o objects/debug.o
+
+objects/asmInstruction.o: assembler/Instruction.cpp assembler/Instruction.h cpu/Opcodes.h
+	$(CPP) $(CPPOPTS) -o $@ -c assembler/Instruction.cpp
+
+objects/asmmain.o: assembler/main.cpp assembler/commandLineArgs.h
+	$(CPP) $(CPPOPTS) -o $@ -c assembler/main.cpp
+
+objects/asmCommandLineArgs.o: assembler/commandLineArgs.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c assembler/commandLineArgs.cpp
 
 test: registerTest busTest registerFileTest aluTest ramTest
 	@./registerTest

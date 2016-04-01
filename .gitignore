@@ -6,3 +6,4 @@ busTest
 registerFileTest
 aluTest
 ramTest
+asm
