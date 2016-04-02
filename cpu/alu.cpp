@@ -104,12 +104,22 @@ void ALU::setControl( AluOps controlIn ) {
 
 void ALU::setA( int32_t Aval ) {
     upToDate = false;
+    A.setValue( Aval );
+}
+
+void ALU::nativeSetA( int32_t Aval ) {
+    upToDate = false;
     A.setValue( fixNumber(Aval) );
 }
 
 void ALU::setB( int32_t Bval ) {
     upToDate = false;
     B.setValue( fixNumber(Bval) );
+}
+
+void ALU::nativeSetB( int32_t Bval ) {
+    upToDate = false;
+    B.setValue( Bval );
 }
 
 void ALU::undefine( void ) {
@@ -123,6 +133,20 @@ void ALU::undefine( void ) {
 }
 
 int32_t ALU::getResult( void ) {
+    updateOutputs();
+    
+    // convert result back to a number the cpu is supposed to understand
+    uint32_t ret = abs( result.getValue());
+    
+    if ( result.getValue() < 0 ) {
+        ret = ~ret;
+        ret += 1;
+    }
+    
+    return htobe32( ret );
+}
+
+int32_t ALU::getNativeResult( void ) {
     updateOutputs();
     return result.getValue();
 }

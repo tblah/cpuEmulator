@@ -56,10 +56,13 @@ class ALU {
         ALU( void );
         void setControl( AluOps controlIn );
         void setA( int32_t Aval );
+        void nativeSetA( int32_t Aval ); // doesn't run fixNumber() on it
         void setB( int32_t Bval );
+        void nativeSetB( int32_t Bval ); // doesn't run fixNumber() on it
         void undefine( void ); // undefine signals (called from something sequential so that inputs can't remember their values)
 
         int32_t getResult( void );
+        int32_t getNativeResult( void );
         bool getZeroFlag( void );
         bool getPositiveFlag( void );
 };

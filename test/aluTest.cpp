@@ -18,6 +18,8 @@
 #include <stdlib.h>
 #include <endian.h>
 
+#include <iostream>
+
 int main( void ) {
     debug( "Beginning ALU tests" );
     
@@ -28,21 +30,23 @@ int main( void ) {
 
     // add
     DUT.setControl( AluOps::add );
+
+    std::cout << "1 + 2 = " << DUT.getNativeResult() << std::endl;;
     
-    if ( (DUT.getResult() != 3) || DUT.getZeroFlag() || !DUT.getPositiveFlag() )
+    if ( (DUT.getNativeResult() != 3) || DUT.getZeroFlag() || !DUT.getPositiveFlag() )
         errExit( "failed test(s) for add" );
 
     // sub
     DUT.setControl( AluOps::sub );
 
-    if ( (DUT.getResult() != -1) || DUT.getZeroFlag() || DUT.getPositiveFlag() )
+    if ( (DUT.getNativeResult() != -1) || DUT.getZeroFlag() || DUT.getPositiveFlag() )
         errExit( "failed test(s) for sub" );
     
     // nand
     DUT.setControl( AluOps::nand );
 
     // different architechtures might do the sign differently so let's interpret the bits as unsigned for this test
-    int32_t signedResult = DUT.getResult();
+    int32_t signedResult = DUT.getNativeResult();
     uint32_t testResult = *( (uint32_t*) &signedResult);
     if ( (testResult != 0xFFFFFFFF) || DUT.getZeroFlag() )
         errExit( "failed test(s) for nand" );
@@ -50,7 +54,7 @@ int main( void ) {
     // lshift
     DUT.setControl( AluOps::lshift );
     
-    if ( (DUT.getResult() != 4 ) || DUT.getZeroFlag() || !DUT.getPositiveFlag() )
+    if ( (DUT.getNativeResult() != 4 ) || DUT.getZeroFlag() || !DUT.getPositiveFlag() )
         errExit( "failed test(s) for lshift" );
 
     // nop
@@ -62,9 +66,8 @@ int main( void ) {
     DUT.setB( (int32_t) htobe32(1024) );
     DUT.setControl( AluOps::add );
 
-    if ( (DUT.getResult() != 0) || !DUT.getZeroFlag() || !DUT.getPositiveFlag() ) {
+    if ( (DUT.getNativeResult() != 0) || !DUT.getZeroFlag() || !DUT.getPositiveFlag() )
         errExit( "failed test(s) for zero flag" );
-    }
 
     debug( "All ALU tests passed" );    
 
