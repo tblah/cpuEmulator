@@ -24,13 +24,20 @@ default: $(DEFAULT_TARGET)
 objects/Instruction.o: assembler/Instruction.cpp assembler/Instruction.h cpu/Opcodes.h
 	$(CPP) $(CPPOPTS) -o $@ -c assembler/Instruction.cpp
 
-test: registerTest busTest registerFileTest aluTest ramTest decoderTest
+test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest
 	@./registerTest
 	@./busTest
 	@./registerFileTest
 	@./aluTest
 	@./ramTest
 	@./decoderTest
+	@./muxTest
+
+muxTest: objects/muxTest.o objects/debug.o
+	$(CPP) $(CPPOPTS) -o $@ objects/muxTest.o objects/debug.o
+
+objects/muxTest.o: emulator/mux.h emulator/Signal.h emulator/debug.h test/muxTest.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c test/muxTest.cpp
 
 decoderTest: objects/decoderTest.o objects/debug.o objects/Instruction.o objects/Decoder.o
 	$(CPP) $(CPPOPTS) -o $@ objects/decoderTest.o objects/debug.o objects/Instruction.o objects/Decoder.o 
