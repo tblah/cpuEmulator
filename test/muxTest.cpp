@@ -26,6 +26,7 @@ enum class Key {
 int main( void ) {
     debug( "Beginning mux tests" );
 
+    // try special version for enums
     Mux<Key, int> DUT;
     DUT.setInput( Key::one, 1 );
     DUT.setInput( Key::two, 2 );
@@ -46,6 +47,15 @@ int main( void ) {
     DUT.setInput( Key::three, -3 );
     if ( DUT.getOutput() != -3 )
         errExit( "-3" );
+
+    // now try with integer keys
+    Mux<int, int> DUT2;
+
+    DUT2.setInput(1, 1);
+    DUT2.setSelect(1);
+
+    if (DUT2.getOutput() != 1 )
+        errExit( "int 1" );
     
     debug( "All mux tests passed" );
     return EXIT_SUCCESS;

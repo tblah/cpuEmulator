@@ -31,13 +31,18 @@ struct EnumClassHash {
     }
 };
 
-// the third template arguement is only valid if KeyType is an enum
-// just ignore it. It has no name and it is unused in the class. It just exists to 
-// prevent compilation if KeyType is not enumerated
-// this is required because EnumClassHash is not appropiate for anything else
-template <typename KeyType, typename DataType, class = typename std::enable_if<std::is_enum<KeyType>::value>::type> class Mux {
+template <typename KeyType, typename DataType > class Mux {
     private:
-        std::unordered_map<KeyType, DataType, EnumClassHash> Data;
+        /* the third template parameter to this is the hashing function to use
+            when building the hash table. std::hash does not know how to deal
+            with enums and so we need to specify EnumClassHash *only* when KeyType
+            is an enum
+        */
+ 
+        std::unordered_map<KeyType, DataType, typename
+            std::conditional< std::is_enum<KeyType>::value, EnumClassHash,
+            std::hash<KeyType> >::type> Data;
+
         Signal<KeyType> Select;
 
     public:
