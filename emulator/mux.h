@@ -20,7 +20,7 @@
 #include "Signal.h"
 #include <stdexcept>
 #include "debug.h"
-#include <type_traits>
+#include <type_traits> // magic
 
 // by default, gcc does not know how to make a hash table of enum classes.
 // this tells it how
@@ -38,7 +38,6 @@ template <typename KeyType, typename DataType > class Mux {
             with enums and so we need to specify EnumClassHash *only* when KeyType
             is an enum
         */
- 
         std::unordered_map<KeyType, DataType, typename
             std::conditional< std::is_enum<KeyType>::value, EnumClassHash,
             std::hash<KeyType> >::type> Data;
