@@ -18,8 +18,6 @@
 #include <stdlib.h>
 #include <endian.h>
 
-#include <iostream>
-
 int main( void ) {
     debug( "Beginning ALU tests" );
     
@@ -31,8 +29,6 @@ int main( void ) {
     // add
     DUT.setControl( AluOps::add );
 
-    std::cout << "1 + 2 = " << DUT.getNativeResult() << std::endl;;
-    
     if ( (DUT.getNativeResult() != 3) || DUT.getZeroFlag() || !DUT.getPositiveFlag() )
         errExit( "failed test(s) for add" );
 
@@ -68,6 +64,15 @@ int main( void ) {
 
     if ( (DUT.getNativeResult() != 0) || !DUT.getZeroFlag() || !DUT.getPositiveFlag() )
         errExit( "failed test(s) for zero flag" );
+
+    // native output
+    DUT.setA( htobe32(3) );
+    DUT.setB( htobe32(3) );
+    DUT.setControl( AluOps::add );
+
+    int32_t expectedResult =  ((int32_t) htobe32(6));
+    if ( DUT.getResult() != expectedResult )
+        errExit( "failed test for alternate output" );
 
     debug( "All ALU tests passed" );    
 

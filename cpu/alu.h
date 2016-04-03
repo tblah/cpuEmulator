@@ -13,6 +13,14 @@
         positive (for BLT)
 */
 
+/* we have different getters and setters depending on wheather the desired format
+   is appropiate for the host cpu or the cpu we are emulating. Adds for the program
+   counter will be done for the host cpu as this is internal to the emulation and so
+   I do not consider it important to keep the address numbers accurate. However, 
+   for the execution of memory images to be accurate, the ALU has to also support 
+   operating on numbers represented for the cpu being emulated. This is nessecarry
+   in order to provide accurate emulation. */ 
+
 /*  This file is part of cpuEmulator.
     cpuEmulator is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -61,8 +69,8 @@ class ALU {
         void nativeSetB( int32_t Bval ); // doesn't run fixNumber() on it
         void undefine( void ); // undefine signals (called from something sequential so that inputs can't remember their values)
 
-        int32_t getResult( void );
-        int32_t getNativeResult( void );
+        int32_t getResult( void ); // no conversion for host machine
+        int32_t getNativeResult( void ); // conversion to host machine
         bool getZeroFlag( void );
         bool getPositiveFlag( void );
 };

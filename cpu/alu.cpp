@@ -104,12 +104,12 @@ void ALU::setControl( AluOps controlIn ) {
 
 void ALU::setA( int32_t Aval ) {
     upToDate = false;
-    A.setValue( Aval );
+    A.setValue( fixNumber(Aval) );
 }
 
 void ALU::nativeSetA( int32_t Aval ) {
     upToDate = false;
-    A.setValue( fixNumber(Aval) );
+    A.setValue( Aval );
 }
 
 void ALU::setB( int32_t Bval ) {
