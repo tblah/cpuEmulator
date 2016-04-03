@@ -32,8 +32,8 @@ test: registerTest busTest registerFileTest aluTest ramTest decoderTest
 	@./ramTest
 	@./decoderTest
 
-decoderTest: objects/decoderTest.o objects/debug.o objects/Instruction.o objects/Decoder.o objects/alu.o
-	$(CPP) $(CPPOPTS) -o $@ objects/decoderTest.o objects/debug.o objects/Instruction.o objects/Decoder.o objects/alu.o
+decoderTest: objects/decoderTest.o objects/debug.o objects/Instruction.o objects/Decoder.o
+	$(CPP) $(CPPOPTS) -o $@ objects/decoderTest.o objects/debug.o objects/Instruction.o objects/Decoder.o 
 
 objects/Decoder.o: cpu/Opcodes.h cpu/Decoder.cpp cpu/Decoder.h emulator/Signal.h emulator/debug.h
 	$(CPP) $(CPPOPTS) -o $@ -c cpu/Decoder.cpp 

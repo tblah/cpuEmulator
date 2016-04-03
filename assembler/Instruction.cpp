@@ -43,8 +43,7 @@ uint32_t Instruction::validateImmediate( int32_t immediate ) {
         result += 1;
     }
 
-    // the cpu is big endian. This assembler may not be running on a big endian machine
-    return htobe32( result );
+    return result;
 }
 
 Instruction::Instruction( Opcode Op, uint8_t A, uint8_t B, uint8_t dest) {
@@ -115,5 +114,6 @@ Instruction::Instruction( Opcode Op ) {
 }
 
 uint32_t Instruction::getObjectCode( void ) {
-    return objectCode;
+    // the cpu is big endian. This assembler may not be running on a big endian machine
+    return htobe32(objectCode);
 }

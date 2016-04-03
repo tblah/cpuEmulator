@@ -75,7 +75,7 @@ int32_t ALU::fixNumber( int32_t x ) {
     // the cpu (and machine code assembled for it) is big endian
     // and it uses two's compliment for all numbers
     // this may not be true for the machine doing the emulating. This could break adding and subtracting so we will fix numbers here
-    
+   /* 
     // the endian functions operate on unsigned numbers. This doesn't matter because we don't know which bits are which yet
     int32_t result = abs(x);
     uint32_t unsignedX = be32toh( *((uint32_t*) &result) );
@@ -90,7 +90,8 @@ int32_t ALU::fixNumber( int32_t x ) {
     if (x >> 31) // = 1 for negative, = 0 for positive
         result = -result;
 
-    return result;
+    return result;*/
+    return x;
 }
 
 ALU::ALU( void ) {
