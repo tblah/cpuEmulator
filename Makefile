@@ -33,6 +33,9 @@ test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest
 	@./decoderTest
 	@./muxTest
 
+objects/cpu.o: emulator/*.h cpu/*.h cpu/CPU.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c cpu/CPU.cpp
+
 muxTest: objects/muxTest.o objects/debug.o
 	$(CPP) $(CPPOPTS) -o $@ objects/muxTest.o objects/debug.o
 
