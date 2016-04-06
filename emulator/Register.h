@@ -34,6 +34,11 @@ template <typename Type> class Register {
             return Q.getValue();
         }
 
+        void reset( void ) {
+            Q.undefine();
+            QNext.undefine();
+        }
+
     private:
         Signal<Type> Q;
         Signal<Type> QNext;

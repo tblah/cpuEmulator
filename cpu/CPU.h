@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "../emulator/Bus.h"
+//#include "../emulator/Bus.h"
 #include "../emulator/mux.h"
 #include "alu.h"
 #include "Decoder.h"
@@ -30,6 +30,7 @@
 #include "../emulator/Signal.h"
 #include "ControlUnitState.h"
 #include "ram.h"
+#include "Opcodes.h"
 
 class CPU {
     private:
@@ -43,31 +44,29 @@ class CPU {
 
         // special purpose registers
         Register<int32_t> programCounter;
-        Register<int32_t> instructionRegister;
         Register<int32_t> PCplus4;
         Register<uint8_t> resultArg;
         Register<int32_t> immediate;
-        Register<int32_t> A;
-        Register<int32_t> B;
         Register<int32_t> aluResult;
         Register<bool> zero;
         Register<bool> positive;
-        Register<int32_t> ramRead;
+//        Register<int32_t> ramRead;
         Register<bool> halted;
         Register<ControlUnitStateEnum> controlUnitState;
+        Register<Opcode> currentOpcode;
         
         // interface with ram
-        Bus<int32_t> ramDataBus;
+        //Bus<int32_t> ramDataBus;
 
         // multiplexers
-        Mux<AluBMuxControl, int32_t> aluBMux;
-        Mux<PCMuxControl, int32_t> PCMux;
+        //Mux<AluBMuxControl, int32_t> aluBMux;
+        //Mux<PCMuxControl, int32_t> PCMux;
         Mux<bool, int32_t> ifZeroMux;
         Mux<bool, int32_t> ifPositiveMux;
-        Mux<RegWriteSelectMuxControl, uint8_t> regWriteSelectMux;
-        Mux<RegWriteDataMuxControl, int32_t> regWriteDataMux;
+        //Mux<RegWriteSelectMuxControl, uint8_t> regWriteSelectMux;
+        //Mux<RegWriteDataMuxControl, int32_t> regWriteDataMux;
     
-        // control unit logic for each state
+        // control unit combinational logic for each state
         void fetch( void );
         void decode( void );
         void execute( void );

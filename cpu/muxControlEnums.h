@@ -1,4 +1,7 @@
 // enums for controlling the multiplexers in the cpu
+// these have been superseeded because it would make the code extremely
+//      messy to include explicitly and their functionality is replicated by
+//      the switch statements anyway
 
 /*  This file is part of cpuEmulator.
     cpuEmulator is free software: you can redistribute it and/or modify
@@ -15,12 +18,13 @@
 #ifndef ENUM_CONTROL_H
 #define ENUM_CONTROL_H
 
-enum class AluBMuxControl {
+// this mux was not included explicitly in code because it made it hard to read
+/*enum class AluBMuxControl {
     RegB,
     Immediate
-};
+};*/
 
-enum class PCMuxControl {
+/*enum class PCMuxControl {
     Normal, // PC = PC+4
     JumpIfZero,
     JumpIfPositive,
@@ -35,6 +39,6 @@ enum class RegWriteSelectMuxControl {
 enum class RegWriteDataMuxControl {
     aluResult,
     ramRead
-};
+};*/
 
 #endif

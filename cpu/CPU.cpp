@@ -15,23 +15,260 @@
 
 #include "CPU.h"
 #include "../emulator/debug.h"
+#include "aluOps.h"
 
 // to do
-// control unit logic
+// control unit combinational logic
 inline void CPU::fetch( void ) {
+    // read the next instruction from the RAM into the instruction register
+    ram->setReadingThisCycle( true );
+    ram->setAddress( programCounter.getOutput() );
+    
+    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Decode );   
 
+    // reset registers which shouldn't be remembering anything from the previous cycle
+    PCplus4.reset();
+    resultArg.reset();
+    immediate.reset();
+    aluResult.reset();
+    currentOpcode.reset();
 }
 
 inline void CPU::decode( void ) {
+    // decode the instruction we just read from RAM and read those registers
+    decoder.setMemoryWord( ram->getOutput() );
 
+    currentOpcode.changeDriveSignal( decoder.getOpcode() );
+
+    registers.setReadThisCycle( true );
+
+    // only get what we want so we don't read any undefined signals from decoder
+    // in a real control unit all the logic would happen 
+    switch (decoder.getOpcode()) {
+        case ( Opcode::add ):
+        case ( Opcode::sub ):
+        case ( Opcode::nand ):
+        case ( Opcode::lshift ):
+            // reads from register file
+            registers.setReadSelect1( decoder.getA() );
+            registers.setReadSelect2( decoder.getB() );
+
+            resultArg.changeDriveSignal( decoder.getResult() );
+            break;
+
+        case ( Opcode::addImmediate ):
+        case ( Opcode::subImmediate ):
+            registers.setReadSelect1( decoder.getA() );
+            immediate.changeDriveSignal( decoder.getImmediate() );
+            break;
+
+        case ( Opcode::jumpToReg ):
+        case ( Opcode::branchIfZero ):
+        case ( Opcode::branchIfPositive ):
+            registers.setReadSelect1( decoder.getA() );
+            break;
+
+        case ( Opcode::load ):
+            registers.setReadSelect1( decoder.getA() );
+
+            resultArg.changeDriveSignal( decoder.getResult() );
+            break;
+
+        case ( Opcode::store ):
+            registers.setReadSelect1( decoder.getA() );
+            registers.setReadSelect2( decoder.getB() );
+            break;
+
+        case ( Opcode::nop ):
+        case ( Opcode::halt ):
+            // no arguements
+            break;
+
+        default:
+            errExit( "In cpu/decode, invalid opcode" );
+    }
+
+    // calculate what the next value of the program counter probably will be
+    alu.setControl( AluOps::add );
+    alu.setA( programCounter.getOutput() );
+    alu.setB( sizeof(int32_t) );
+    PCplus4.changeDriveSignal( alu.getResult() );
+
+    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Execute );
 }
 
 inline void CPU::execute( void ) {
+    // actually execure the instructions
+    // to keep the code simple we are not using aluBMux explicitly
+    switch ( currentOpcode.getOutput() ) {
+        case ( Opcode::add ):
+            alu.setA( registers.getOut1() );
+            alu.setB( registers.getOut2() );
+            alu.setControl( AluOps::add );
 
+            aluResult.changeDriveSignal( alu.getResult() );
+            zero.changeDriveSignal( alu.getZeroFlag() );
+            positive.changeDriveSignal( alu.getPositiveFlag() );
+
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::sub ):
+            alu.setA( registers.getOut1() );
+            alu.setB( registers.getOut2() );
+            alu.setControl( AluOps::sub );
+
+            aluResult.changeDriveSignal( alu.getResult() );
+            zero.changeDriveSignal( alu.getZeroFlag() );
+            positive.changeDriveSignal( alu.getPositiveFlag() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::nand ):
+            alu.setA( registers.getOut1() );
+            alu.setB( registers.getOut2() );
+            alu.setControl( AluOps::nand );
+
+            aluResult.changeDriveSignal( alu.getResult() );
+            zero.changeDriveSignal( alu.getZeroFlag() );
+            positive.changeDriveSignal( alu.getPositiveFlag() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::lshift ):
+            alu.setA( registers.getOut1() );
+            alu.setB( registers.getOut2() );
+            alu.setControl( AluOps::lshift );
+ 
+            aluResult.changeDriveSignal( alu.getResult() );
+            zero.changeDriveSignal( alu.getZeroFlag() );
+            positive.changeDriveSignal( alu.getPositiveFlag() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::addImmediate ):
+            alu.setA( registers.getOut1() );
+            alu.setB( immediate.getOutput() );
+            alu.setControl( AluOps::add );
+ 
+            aluResult.changeDriveSignal( alu.getResult() );
+            zero.changeDriveSignal( alu.getZeroFlag() );
+            positive.changeDriveSignal( alu.getPositiveFlag() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::subImmediate ):
+            alu.setA( registers.getOut1() );
+            alu.setB( immediate.getOutput() );
+            alu.setControl( AluOps::sub );
+ 
+            aluResult.changeDriveSignal( alu.getResult() );
+            zero.changeDriveSignal( alu.getZeroFlag() );
+            positive.changeDriveSignal( alu.getPositiveFlag() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::jumpToReg ):
+            programCounter.changeDriveSignal( registers.getOut1() );
+            break;
+
+        case ( Opcode::branchIfZero ):
+            // using ifZeroMux as an if statement
+            // this is using the value of zero from whenever the ALU last did
+            //          something in the execute stage
+            ifZeroMux.setInput( true, registers.getOut1() );
+            ifZeroMux.setInput( false, PCplus4.getOutput() );
+            ifZeroMux.setSelect( alu.getZeroFlag() );
+
+            programCounter.changeDriveSignal( ifZeroMux.getOutput() );
+            break;
+
+        case ( Opcode::branchIfPositive ):
+            // see notes for branchIfZero
+            ifPositiveMux.setInput( true, registers.getOut1() );
+            ifPositiveMux.setInput( false, PCplus4.getOutput() );
+            ifPositiveMux.setSelect( alu.getPositiveFlag() );
+
+            programCounter.changeDriveSignal( ifPositiveMux.getOutput() );
+            break;
+
+        case ( Opcode::load ):
+            ram->setReadingThisCycle( true );
+            ram->setAddress( registers.getOut1() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::store ):
+            ram->setReadingThisCycle( false ); // write
+            ram->setAddress( registers.getOut1() );
+            ram->setDataIn( registers.getOut2() );
+ 
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::nop ):
+            // nothing needs doing
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+            break;
+
+        case ( Opcode::halt ):
+            halted.changeDriveSignal( true );
+            programCounter.reset(); // errExit if we don't actually halt
+            break;
+
+        default:
+            errExit( "In cpu/execute, invalid opcode" );
+    }
+
+    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Write );
 }
 
 inline void CPU::write( void ) {
+    switch ( currentOpcode.getOutput() ) {
+        case ( Opcode::addImmediate ):
+        case ( Opcode::subImmediate ):
+            // write the result back to register 1
+            registers.setReadThisCycle( false ); // write
+            registers.setWriteSelect( 1 );
+            registers.setWriteData( aluResult.getOutput() );
+            break;
 
+        case ( Opcode::add ):
+        case ( Opcode::sub ):
+        case ( Opcode::nand ):
+        case ( Opcode::lshift ):
+            // write back to the specified register
+            registers.setReadThisCycle( false ); // write
+            registers.setWriteSelect( resultArg.getOutput() );
+            registers.setWriteData( aluResult.getOutput() );
+            break;
+
+        case ( Opcode::load ):
+            registers.setReadThisCycle( false ); // write
+            registers.setWriteSelect( resultArg.getOutput() );
+            registers.setWriteData( ram->getOutput() );
+            break;
+        
+        case ( Opcode::nop ):
+        case ( Opcode::jumpToReg ):
+        case ( Opcode::branchIfZero ):
+        case ( Opcode::branchIfPositive ):
+        case ( Opcode::store ):
+        case ( Opcode::halt ):
+            // TODO: make other instructions skip this step so they execute a bit faster
+            break;
+
+        default:
+            errExit( "cpu/write invalid opcode" );
+    }
+
+    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
 }
 
 CPU::CPU( const std::vector<int32_t> &InitialRamData ) {
@@ -42,6 +279,9 @@ CPU::CPU( const std::vector<int32_t> &InitialRamData ) {
 
     controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
     controlUnitState.clockTick();
+
+    programCounter.changeDriveSignal( 0 );
+    programCounter.clockTick();
 }
 
 CPU::~CPU( void ) {
@@ -56,19 +296,19 @@ bool CPU::clockTick( void ) {
     // all of the combinational logic must not remember stuff from the previous cycle
     alu.undefine();
     decoder.undefine();
-    aluBMux.undefine();
-    PCMux.undefine();
+    //aluBMx.undefine();
+    //PCMux.undefine();
     ifZeroMux.undefine();
     ifPositiveMux.undefine();
-    regWriteSelectMux.undefine();
-    regWriteDataMux.undefine();
+    //regWriteSelectMux.undefine();
+    //regWriteDataMux.undefine();
 
     // do all combinational logic
     switch( controlUnitState.getOutput() ) {
         case (ControlUnitStateEnum::Fetch):
             fetch();
             break;
-        
+
         case (ControlUnitStateEnum::Decode):
             decode();
             break;
@@ -88,18 +328,14 @@ bool CPU::clockTick( void ) {
     // now clock tick everything sequential
     registers.clockTick();
     programCounter.clockTick();
-    instructionRegister.clockTick();
     PCplus4.clockTick();
     resultArg.clockTick();
     immediate.clockTick();
-    A.clockTick();
-    B.clockTick();
     aluResult.clockTick();
     zero.clockTick();
     positive.clockTick();
-    ramRead.clockTick();
-    halted.clockTick();
     controlUnitState.clockTick();
+    currentOpcode.clockTick();
     
     return halted.getOutput();   
 }
