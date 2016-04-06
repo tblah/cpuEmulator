@@ -33,9 +33,6 @@
 
 #include <endian.h>
 
-#include <iostream>
-using namespace std;
-
 template <typename DataType, typename AddressType, unsigned int numBytes>
 class RAM {
     private:
@@ -122,8 +119,6 @@ class RAM {
                         if ( inoutData.isDefined() ) { // we have all inputs for write
                             // write one byte at a time
                             // interpret the input's bits as an array of bytes
-                            cout << "storing " << inoutData.getValue() << " to addr " 
-                                << addr.getValue() << endl;
                             DataType inData = inoutData.getValue();
                             int8_t* dataToWrite = (int8_t*) &inData; // treat as an array of int8_t
                             for ( size_t i = 0; i < sizeof( DataType ); i++ )

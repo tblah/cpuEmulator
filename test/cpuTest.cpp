@@ -43,12 +43,14 @@ CPU runInstructions( vector<Instruction> &instructions ) {
 
 int main( void ) {
     debug( "Begginning cpu tests" );
+    debug( "" );
 
     // test halt
     vector<Instruction> haltTest;
     haltTest.push_back( Instruction( Opcode::halt ) );
     runInstructions( haltTest );
     debug ( "halt test passed" );
+    debug( "" );
 
 
 
@@ -59,7 +61,7 @@ int main( void ) {
     nopTest.push_back( Instruction( Opcode::halt ) );
     runInstructions( nopTest );
     debug( "nop test passed" );
-
+    debug( "" );
 
 
 
@@ -78,6 +80,7 @@ int main( void ) {
         errExit( "test3" );
     else
         debug( "test 3 passed" );
+    debug( "" );
 
 
 
@@ -100,6 +103,7 @@ int main( void ) {
         errExit( "test4" );
     else
         debug( "test 4 passed" );
+    debug( "" );
 
 
 
@@ -139,8 +143,7 @@ int main( void ) {
         errExit( "loadTest" );
     else
         debug( "load test passed" );
-
-    debug("");
+    debug( "" );
 
 
 

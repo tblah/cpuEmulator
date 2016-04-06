@@ -29,9 +29,6 @@
 #include "../emulator/Signal.h"
 #include "../emulator/debug.h"
 
-#include <iostream>
-using namespace std;
-
 template <typename DataType, typename IndexType, unsigned int numRegisters> 
 class RegisterFile {
     private:
@@ -100,8 +97,6 @@ class RegisterFile {
                         // do the write
                         registers[ writeSelect.getValue() ].changeDriveSignal( 
                             writeData.getValue() );
-                        cout << "wrote " << writeData.getValue() << " to " <<
-                            (int) writeSelect.getValue() << endl;
                     } else { // something is wrong
                         debug( "incomplete input to RegistersFile on write" );
                     }
