@@ -31,6 +31,11 @@
 #include <stdint.h>
 #include <vector>
 
+#include <endian.h>
+
+#include <iostream>
+using namespace std;
+
 template <typename DataType, typename AddressType, unsigned int numBytes>
 class RAM {
     private:
@@ -60,6 +65,18 @@ class RAM {
             
             // we need a clock tick so that the data can be written
             clockTick();
+        }
+
+        // not to be used in hardware modeling. This does a read in a C++ way
+        DataType debugRead( AddressType addr ) {
+            // read the data one byte at a time
+            int8_t readData[ sizeof( DataType ) ];
+
+            for ( size_t i = 0; i < sizeof( DataType ); i++ ) {
+                readData[i] = data[ addr + i ].getOutput();
+            }
+
+            return  *((DataType*) &readData) ;
         }
 
         void setAddress( AddressType address ) {
@@ -99,12 +116,14 @@ class RAM {
                         // this breaks strict aliasing so this file must have
                         // -fstrict-aliasing as a compiler option
                         // an alternative would be to mess about with unions 
-                        inoutData.setValue( *( (DataType*) &readData ) );
+                        inoutData.setValue( be32toh( *( (DataType*) &readData ) ) );
 
                     } else { // writing
                         if ( inoutData.isDefined() ) { // we have all inputs for write
                             // write one byte at a time
                             // interpret the input's bits as an array of bytes
+                            cout << "storing " << inoutData.getValue() << " to addr " 
+                                << addr.getValue() << endl;
                             DataType inData = inoutData.getValue();
                             int8_t* dataToWrite = (int8_t*) &inData; // treat as an array of int8_t
                             for ( size_t i = 0; i < sizeof( DataType ); i++ )

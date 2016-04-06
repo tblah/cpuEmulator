@@ -77,6 +77,10 @@ class CPU {
         ~CPU( void );
 
         bool clockTick( void ); // returns wheather or not we are halted
+
+        // this should only be used in automated testing to check the correct values 
+        // made it to RAM
+        int32_t debugRamRead( int32_t addr );
 };
 
 #endif

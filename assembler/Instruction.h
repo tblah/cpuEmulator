@@ -20,7 +20,7 @@
 
 class Instruction {
     private:
-        uint32_t objectCode; 
+        int32_t objectCode; 
 
         uint8_t validateRegister( uint8_t reg );
         uint32_t validateImmediate( int32_t Immediate );
@@ -40,6 +40,9 @@ class Instruction {
 
             // constructor for nop, halt
             Instruction( Opcode Op );
+
+            // constructor for just a constant number
+            Instruction( int32_t num );
 
             uint32_t getObjectCode( void );
 

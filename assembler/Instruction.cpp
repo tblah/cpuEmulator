@@ -113,6 +113,10 @@ Instruction::Instruction( Opcode Op ) {
     objectCode |= static_cast<unsigned int>(Op);
 }
 
+Instruction::Instruction( int32_t num ) {
+    objectCode = num;
+}
+
 uint32_t Instruction::getObjectCode( void ) {
     // the cpu is big endian. This assembler may not be running on a big endian machine
     return htobe32(objectCode);

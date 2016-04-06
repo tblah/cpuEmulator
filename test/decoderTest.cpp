@@ -18,6 +18,7 @@
 #include "../assembler/Instruction.h"
 #include <stdlib.h>
 #include <time.h>
+#include <endian.h>
 
 int main( void ) {
     debug( "Beginning Decoder tests" );
@@ -28,7 +29,7 @@ int main( void ) {
 
     // add
     Instruction addI = Instruction( Opcode::add, 2, 1, 3 );
-    DUT.setMemoryWord( addI.getObjectCode() );
+    DUT.setMemoryWord( htobe32( addI.getObjectCode() ) );
     
     if ( (DUT.getOpcode() != Opcode::add) ||
             (DUT.getA() != 2) || (DUT.getB() != 1) || (DUT.getResult() != 3) )
@@ -36,7 +37,7 @@ int main( void ) {
     
     // load
     Instruction loadI = Instruction( Opcode::load, (uint8_t) 1, (uint8_t) 2 );
-    DUT.setMemoryWord( loadI.getObjectCode() );
+    DUT.setMemoryWord( htobe32( loadI.getObjectCode() ) );
 
     if ( (DUT.getOpcode() != Opcode::load) || (DUT.getA() != 1) || 
             (DUT.getResult() != 2 ) )
@@ -44,7 +45,7 @@ int main( void ) {
 
     // store
     Instruction storeI = Instruction( Opcode::store, (uint8_t) 2, (uint8_t) 1 );
-    DUT.setMemoryWord( storeI.getObjectCode() );
+    DUT.setMemoryWord( htobe32( storeI.getObjectCode() ) );
 
     if ( (DUT.getOpcode() != Opcode::store) || (DUT.getA() != 2) || (DUT.getB() != 1) )
         errExit( "store" );
@@ -57,7 +58,7 @@ int main( void ) {
         int32_t testNum = ( rand() % 4194304 ) - 2097152;
 
         Instruction addImmI = Instruction( Opcode::addImmediate, 1, testNum );
-        DUT.setMemoryWord( addImmI.getObjectCode() );
+        DUT.setMemoryWord( htobe32( addImmI.getObjectCode() ) );
     
         if ( (DUT.getOpcode() != Opcode::addImmediate)  || (DUT.getA() != 1) ||
                 (DUT.getImmediate() != testNum) )
@@ -66,14 +67,14 @@ int main( void ) {
     
     // branchIfZero
     Instruction bneI = Instruction( Opcode::branchIfZero, 30 );
-    DUT.setMemoryWord( bneI.getObjectCode() );
+    DUT.setMemoryWord( htobe32( bneI.getObjectCode() ) );
 
     if ( (DUT.getOpcode() != Opcode::branchIfZero) || (DUT.getA() != 30 ) )
         errExit( "branchIfZero" );
 
     // nop
     Instruction nopI = Instruction( Opcode::nop );
-    DUT.setMemoryWord( nopI.getObjectCode() );
+    DUT.setMemoryWord( htobe32( nopI.getObjectCode() ) );
 
     if ( DUT.getOpcode() != Opcode::nop )
         errExit( "nop" );

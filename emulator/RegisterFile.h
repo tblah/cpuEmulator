@@ -29,6 +29,9 @@
 #include "../emulator/Signal.h"
 #include "../emulator/debug.h"
 
+#include <iostream>
+using namespace std;
+
 template <typename DataType, typename IndexType, unsigned int numRegisters> 
 class RegisterFile {
     private:
@@ -68,7 +71,6 @@ class RegisterFile {
             if ( readThisCycle.isDefined() ) { // if we are doing anything this cycle
                 if ( readThisCycle.getValue() ) { // we are reading
                     // did we get all the inputs we need?
-
                     // channel 1
                     if ( readSelect1.isDefined() ) {
                         // do read
@@ -84,7 +86,8 @@ class RegisterFile {
                         out2.setValue( registers[ readSelect2.getValue() ].getOutput() );
                     } else {
                         out2.undefine();
-                        debug( "incomplete input to RegistersFile on channel 2 read" );
+                        // many instructions only read from channel 1. Don't panic
+                        //debug( "incomplete input to RegistersFile on channel 2 read" );
                     }
 
                 } else { // we are writing
@@ -97,6 +100,8 @@ class RegisterFile {
                         // do the write
                         registers[ writeSelect.getValue() ].changeDriveSignal( 
                             writeData.getValue() );
+                        cout << "wrote " << writeData.getValue() << " to " <<
+                            (int) writeSelect.getValue() << endl;
                     } else { // something is wrong
                         debug( "incomplete input to RegistersFile on write" );
                     }

@@ -20,6 +20,8 @@
 #include "../assembler/Instruction.h"
 #include "../cpu/Opcodes.h"
 
+#include <endian.h>
+
 int main( void ) {
     debug( "Starting RAM test" );
 
@@ -37,7 +39,7 @@ int main( void ) {
     DUT.setAddress( 0 );
     DUT.clockTick();
     
-    if ( DUT.getOutput() != data )
+    if ( DUT.getOutput() != htobe32(data) )
         errExit( "Data were not preloaded into RAM correctly" );
     
     // write
@@ -53,7 +55,7 @@ int main( void ) {
     int32_t result = DUT.getOutput();
 
     // test that we got back what we wrote
-    if ( result != 100 )
+    if ( result != htobe32(100) )
         errExit( " RAM test failed. We did not read back what we wrote" );
 
     debug( "All test passed for RAM" );

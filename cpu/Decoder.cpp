@@ -62,7 +62,7 @@ void Decoder::setMemoryWord( uint32_t inMemoryWord ) {
     undefine();
 
     // set the new memoryWord
-    memoryWord.setValue( be32toh(inMemoryWord) );
+    memoryWord.setValue( /*be32toh(inMemoryWord)*/ inMemoryWord );
 
     // calculate new outputs
     Op.setValue( static_cast<Opcode>(get5BitsAtOffset( 0 )) );
