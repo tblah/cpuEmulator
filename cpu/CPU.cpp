@@ -41,6 +41,8 @@ inline void CPU::decode( void ) {
     decoder.setMemoryWord( ram->getOutput() );
     currentOpcode.changeDriveSignal( decoder.getOpcode() );
 
+    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Execute );
+
     // only get what we want so we don't read any undefined signals from decoder
     // in a real control unit all the logic would happen 
     switch (decoder.getOpcode()) {
@@ -83,9 +85,9 @@ inline void CPU::decode( void ) {
             registers.setReadSelect2( decoder.getB() );
             break;
 
-        case ( Opcode::nop ):
+        case ( Opcode::nop ): 
         case ( Opcode::halt ):
-            // no arguements
+            // we can't skip back to fetch yet because PC has not got it's new value
             break;
 
         default:
@@ -97,11 +99,14 @@ inline void CPU::decode( void ) {
     alu.setA( programCounter.getOutput() );
     alu.setB( sizeof(int32_t) );
     PCplus4.changeDriveSignal( alu.getResult() );
-    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Execute );
 }
 
 inline void CPU::execute( void ) {
     debug( "execute" );
+
+    // default
+    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Write );
+
     // actually execure the instructions
     // to keep the code simple we are not using aluBMux explicitly
     switch ( currentOpcode.getOutput() ) {
@@ -186,6 +191,9 @@ inline void CPU::execute( void ) {
         case ( Opcode::jumpToReg ):
             debug( "J2R exec" );
             programCounter.changeDriveSignal( registers.getOut1() );
+            
+            // no need to write anything. Skip to next instruction
+            controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
             break;
 
         case ( Opcode::branchIfZero ):
@@ -198,6 +206,9 @@ inline void CPU::execute( void ) {
             ifZeroMux.setSelect( zero.getOutput() );
 
             programCounter.changeDriveSignal( ifZeroMux.getOutput() );
+             
+            // no need to write anything. Skip to next instruction
+            controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
             break;
 
         case ( Opcode::branchIfPositive ):
@@ -209,6 +220,9 @@ inline void CPU::execute( void ) {
             ifPositiveMux.setSelect( positive.getOutput() );
             debug("wat");
             programCounter.changeDriveSignal( ifPositiveMux.getOutput() );
+             
+            // no need to write anything. Skip to next instruction
+            controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
             break;
 
         case ( Opcode::load ):
@@ -226,12 +240,18 @@ inline void CPU::execute( void ) {
             ram->setDataIn( registers.getOut2() );
  
             programCounter.changeDriveSignal( PCplus4.getOutput() );
+             
+            // no need to write anything. Skip to next instruction
+            controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
             break;
 
         case ( Opcode::nop ):
             // nothing needs doing
             debug( "nop exec" );
             programCounter.changeDriveSignal( PCplus4.getOutput() );
+             
+            // no need to write anything. Skip to next instruction
+            controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
             break;
 
         case ( Opcode::halt ):
@@ -243,8 +263,6 @@ inline void CPU::execute( void ) {
         default:
             errExit( "In cpu/execute, invalid opcode" );
     }
-
-    controlUnitState.changeDriveSignal( ControlUnitStateEnum::Write );
 }
 
 inline void CPU::write( void ) {
@@ -280,7 +298,7 @@ inline void CPU::write( void ) {
         case ( Opcode::branchIfPositive ):
         case ( Opcode::store ):
         case ( Opcode::halt ):
-            // TODO: make other instructions skip this step so they execute a bit faster
+            errExit( "we should have skipped write for that opcode" );
             break;
 
         default:
