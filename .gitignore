@@ -11,3 +11,13 @@ todo
 decoderTest
 muxTest
 cpuTest
+*.bbl
+*.blg
+*.log
+*.aux
+*.bbl
+*.bcf
+report.bib*
+*.run.xml
+*.tex.bbl
+*.tex.blg

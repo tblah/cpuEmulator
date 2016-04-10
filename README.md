@@ -19,3 +19,5 @@ emulator - Things for emulating digital electronics. Not specific to the CPU des
 cpu - Implementation of the CPU
 objects - compiled but unlinked objects from the build
 assembler - a *very* simple assembler for generating memory images for the cpu to execute. I decided that making something able to parse files was overkill and so (for now) this will just use instances of Instruction.
+doc - Source files for the report on this coursework
+
