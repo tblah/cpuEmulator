@@ -16,11 +16,19 @@
 #define DEBUG_H
 
 #include <string>
+#include <iostream>
 
 // prints message and then exits execution: indicating an error condition
 void errExit( std::string message );
 
 // if debugging is enabled, print a debug message to stderr
 void debug( std::string message );
+
+// if signal debugging is enabled, print signal changes to stderr
+template <typename Type> void debugSignal( std::string name, Type newVal ) {
+    #ifdef SIGNAL_DEBUG
+    std::cerr << "SIGNAL DEBUG: " << name << " changed to " << newVal << std::endl;
+    #endif 
+}
 
 #endif

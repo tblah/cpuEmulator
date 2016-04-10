@@ -20,7 +20,7 @@
 // to do
 // control unit combinational logic
 inline void CPU::fetch( void ) {
-    debug( "fetch" );
+    debugSignal( "cpu state", "fetch" );
     // read the next instruction from the RAM into the instruction register
     ram->setReadingThisCycle( true );
     ram->setAddress( programCounter.getOutput() );
@@ -36,7 +36,7 @@ inline void CPU::fetch( void ) {
 }
 
 inline void CPU::decode( void ) {
-    debug( "decode" );
+    debugSignal( "cpu state", "decode" );
     // decode the instruction we just read from RAM and read those registers
     decoder.setMemoryWord( ram->getOutput() );
     currentOpcode.changeDriveSignal( decoder.getOpcode() );
@@ -109,7 +109,7 @@ inline void CPU::execute( void ) {
     // to keep the code simple we are not using aluBMux explicitly
     switch ( currentOpcode.getOutput() ) {
         case ( Opcode::add ):
-            debug( "add execute" );
+            debugSignal( "cpu state", "add execute" );
             alu.setA( registers.getOut1() );
             alu.setB( registers.getOut2() );
             alu.setControl( AluOps::add );
@@ -122,7 +122,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::sub ):
-            debug( "sub execute" );
+            debugSignal( "cpu state", "sub execute" );
             alu.setA( registers.getOut1() );
             alu.setB( registers.getOut2() );
             alu.setControl( AluOps::sub );
@@ -135,7 +135,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::nand ):
-            debug( "nand execute" );
+            debugSignal( "cpu state", "nand execute" );
             alu.setA( registers.getOut1() );
             alu.setB( registers.getOut2() );
             alu.setControl( AluOps::nand );
@@ -148,7 +148,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::lshift ):
-            debug( "lshift execute" );
+            debugSignal( "cpu state", "lshift execute" );
             alu.setA( registers.getOut1() );
             alu.setB( registers.getOut2() );
             alu.setControl( AluOps::lshift );
@@ -161,7 +161,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::addImmediate ):
-            debug( "addImmediate execute" );
+            debugSignal( "cpu state", "addImmediate execute" );
             alu.setA( registers.getOut1() );
             alu.setB( immediate.getOutput() );
             alu.setControl( AluOps::add );
@@ -174,7 +174,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::subImmediate ):
-            debug( "subImmediate execute" );
+            debugSignal( "cpu state", "subImmediate execute" );
             alu.setA( registers.getOut1() );
             alu.setB( immediate.getOutput() );
             alu.setControl( AluOps::sub );
@@ -187,7 +187,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::jumpToReg ):
-            debug( "Jump to Register execute" );
+            debugSignal( "cpu state", "Jump to Register execute" );
             programCounter.changeDriveSignal( registers.getOut1() );
             
             // no need to write anything. Skip to next instruction
@@ -195,7 +195,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::branchIfZero ):
-            debug( "Branch if zero execute" );
+            debugSignal( "cpu state", "Branch if zero execute" );
             // using ifZeroMux as an if statement
             // this is using the value of zero from whenever the ALU last did
             //          something in the execute stage
@@ -210,7 +210,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::branchIfPositive ):
-            debug( "Branch if positive execute" );
+            debugSignal( "cpu state", "Branch if positive execute" );
             // see notes for branchIfZero
             ifPositiveMux.setInput( true, registers.getOut1() );
             ifPositiveMux.setInput( false, PCplus4.getOutput() );
@@ -222,7 +222,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::load ):
-            debug( "load execute" );
+            debugSignal( "cpu state", "load execute" );
             ram->setReadingThisCycle( true );
             ram->setAddress( registers.getOut1() );
  
@@ -230,7 +230,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::store ):
-            debug( "store execute" );
+            debugSignal( "cpu state", "store execute" );
             ram->setReadingThisCycle( false ); // write
             ram->setAddress( registers.getOut1() );
             ram->setDataIn( registers.getOut2() );
@@ -243,7 +243,7 @@ inline void CPU::execute( void ) {
 
         case ( Opcode::nop ):
             // nothing needs doing
-            debug( "nop execute" );
+            debugSignal( "cpu state", "nop execute" );
             programCounter.changeDriveSignal( PCplus4.getOutput() );
              
             // no need to write anything. Skip to next instruction
@@ -251,7 +251,7 @@ inline void CPU::execute( void ) {
             break;
 
         case ( Opcode::halt ):
-            debug( "halt execute" );
+            debugSignal( "cpu state", "halt execute" );
             halted.changeDriveSignal( true );
             programCounter.reset(); // errExit if we don't actually halt
             break;
@@ -262,7 +262,7 @@ inline void CPU::execute( void ) {
 }
 
 inline void CPU::write( void ) {
-    debug( "write" );
+    debugSignal( "cpu state", "write" );
     switch ( currentOpcode.getOutput() ) {
         case ( Opcode::addImmediate ):
         case ( Opcode::subImmediate ):

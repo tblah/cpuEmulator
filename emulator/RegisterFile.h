@@ -28,6 +28,7 @@
 #include "../emulator/Register.h"
 #include "../emulator/Signal.h"
 #include "../emulator/debug.h"
+#include <string>
 
 template <typename DataType, typename IndexType, unsigned int numRegisters> 
 class RegisterFile {
@@ -97,6 +98,8 @@ class RegisterFile {
                         // do the write
                         registers[ writeSelect.getValue() ].changeDriveSignal( 
                             writeData.getValue() );
+
+                        debugSignal( "general purpouse register " + std::to_string((int) writeSelect.getValue()), writeData.getValue() );
                     } else { // something is wrong
                         debug( "incomplete input to RegistersFile on write" );
                     }

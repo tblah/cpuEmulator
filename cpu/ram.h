@@ -124,6 +124,8 @@ class RAM {
                             for ( size_t i = 0; i < sizeof( DataType ); i++ )
                                 data[ addr.getValue() + i ].changeDriveSignal( dataToWrite[i] );
 
+                            debugSignal( "ram at address " + std::to_string(addr.getValue()), inoutData.getValue());
+
                             // outData should not remember it's value
                             inoutData.undefine();
 
