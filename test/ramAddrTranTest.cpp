@@ -72,11 +72,11 @@ int main( void ) {
     DUT.setAddress( 6144 ); // 0th address of video memory
     DUT.setReadingThisCycle( true );
     DUT.clockTick();
-    result = DUT.getOutput();
+    result = htobe32(DUT.getOutput());
     char* resultStr = (char*) &result;
 
     // test that we got back what we wrote
-    if ( strncmp(resultStr, "ABC", 4 ) != 0 ) {
+    if ( strncmp(resultStr, testData, 4 ) != 0 ) {
         errExit( "RamAddrTran test failed. We did not read back what we wrote to video memory" );
     }
 
