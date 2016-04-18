@@ -305,7 +305,7 @@ inline void CPU::write( void ) {
 }
 
 CPU::CPU( const std::vector<int32_t> &InitialRamData ) {
-    ram = new RAM<int32_t, int32_t, 1024> ( InitialRamData );
+    ram = new RAM<int32_t, 10240> ( InitialRamData );
 
     halted.changeDriveSignal( false );
     halted.clockTick();

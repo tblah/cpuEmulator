@@ -29,10 +29,10 @@ int main( void ) {
     Instruction I1 = Instruction( Opcode::add, 1, 2, 3 );
     uint32_t data = I1.getObjectCode();
 
-    std::vector<uint32_t> StartingData;
+    std::vector<int32_t> StartingData;
     StartingData.push_back( data );
     
-    RAM<uint32_t, uint32_t, 1024> DUT( StartingData ); // 1kB RAM with 32-bit addresses and data bus width
+    RAM<uint32_t, 1024> DUT( StartingData ); // 1kB RAM with 32-bit addresses and data bus width
 
     // test that the data was pre-loaded
     DUT.setReadingThisCycle( true );

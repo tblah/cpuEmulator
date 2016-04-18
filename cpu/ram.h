@@ -7,7 +7,6 @@
 
     Input/Output:
     -data
-
 */
 
 /*  This file is part of cpuEmulator.
@@ -33,31 +32,31 @@
 
 #include <endian.h>
 
-template <typename DataType, typename AddressType, unsigned int numBytes>
+template <typename AddressType, unsigned int numBytes>
 class RAM {
     private:
         Register<int8_t> data[numBytes]; // the ram will behave as a lot faster than real ram 
         Signal<AddressType> addr;
         Signal<bool> readingThisCycle;
-        Signal<DataType> inoutData;
+        Signal<int32_t> inoutData;
 
     public:
         // constructor to start the ram with some initial data
-        RAM( const std::vector<DataType> &InitialData ) {
-            if ( InitialData.size() > (numBytes*sizeof(DataType)) )
+        RAM( const std::vector<int32_t> &InitialData ) {
+            if ( InitialData.size() > (numBytes*sizeof(int32_t)) )
                 errExit( "Initial RAM data does not fit" );
 
             unsigned int nextRamAddr = 0;
 
             for ( unsigned i = 0; i != InitialData.size(); ++i) {
                 // for each instruction
-                DataType fullObj = InitialData[i]; 
+                int32_t fullObj = InitialData[i]; 
 
                 // copy data
-                for ( unsigned int j = 0; j < sizeof(DataType); ++j ) 
+                for ( unsigned int j = 0; j < sizeof(int32_t); ++j ) 
                     data[nextRamAddr+j].changeDriveSignal( ( (int8_t*) &fullObj )[j] );
                 
-                nextRamAddr += sizeof(DataType);
+                nextRamAddr += sizeof(int32_t);
             }
             
             // we need a clock tick so that the data can be written
@@ -65,15 +64,17 @@ class RAM {
         }
 
         // not to be used in hardware modeling. This does a read in a C++ way
-        DataType debugRead( AddressType addr ) {
+        int32_t debugRead( AddressType addr ) {
             // read the data one byte at a time
-            int8_t readData[ sizeof( DataType ) ];
+            int8_t readData[ sizeof( int32_t ) ];
 
-            for ( size_t i = 0; i < sizeof( DataType ); i++ ) {
+            for ( size_t i = 0; i < sizeof( int32_t ); i++ ) {
                 readData[i] = data[ addr + i ].getOutput();
             }
 
-            return  *((DataType*) &readData) ;
+            debugSignal( "debugRead from RAM returning", *((int32_t*) &readData) );
+
+            return  *((int32_t*) &readData) ;
         }
 
         void setAddress( AddressType address ) {
@@ -88,11 +89,11 @@ class RAM {
             readingThisCycle.setValue( rwControl );
         }
 
-        void setDataIn( DataType inData ) {
+        void setDataIn( int32_t inData ) {
             inoutData.setValue( inData );
         }
 
-        DataType getOutput( void ) {
+        int32_t getOutput( void ) {
             return inoutData.getValue();
         }
 
@@ -105,24 +106,25 @@ class RAM {
                             errExit( "RAM and RAM input driving inOutData at the same time!" );
 
                         // read the data one byte at a time
-                        int8_t readData[ sizeof( DataType ) ];
-                        for ( size_t i = 0; i < sizeof( DataType ); i++ ) {
+                        int8_t readData[ sizeof( int32_t ) ];
+                        for ( size_t i = 0; i < sizeof( int32_t ); i++ ) {
                             readData[i] = data[ addr.getValue() + i ].getOutput();
                         }
-                        // interpret readData's bits as a DataType
+                        // interpret readData's bits as a int32_t
                         // this breaks strict aliasing so this file must have
                         // -fstrict-aliasing as a compiler option
                         // an alternative would be to mess about with unions 
-                        inoutData.setValue( be32toh( *( (DataType*) &readData ) ) );
+                        inoutData.setValue( be32toh( *( (int32_t*) &readData ) ) );
 
                     } else { // writing
                         if ( inoutData.isDefined() ) { // we have all inputs for write
                             // write one byte at a time
                             // interpret the input's bits as an array of bytes
-                            DataType inData = inoutData.getValue();
+                            int32_t inData = inoutData.getValue();
                             int8_t* dataToWrite = (int8_t*) &inData; // treat as an array of int8_t
-                            for ( size_t i = 0; i < sizeof( DataType ); i++ )
+                            for ( size_t i = 0; i < sizeof( int32_t ); i++ ) {
                                 data[ addr.getValue() + i ].changeDriveSignal( dataToWrite[i] );
+                            }
 
                             debugSignal( "ram at address " + std::to_string(addr.getValue()), inoutData.getValue());
 
