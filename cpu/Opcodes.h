@@ -40,7 +40,7 @@ enum class Opcode {
     store = 0x0F, // RAM((A)) = (B)
 
     // system
-    //serialWrite = 0x10, // todo
+    serialWrite = 0x10,
     halt = 0x11 
 };
 

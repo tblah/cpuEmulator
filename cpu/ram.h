@@ -72,8 +72,6 @@ class RAM {
                 readData[i] = data[ addr + i ].getOutput();
             }
 
-            debugSignal( "debugRead from RAM returning", *((int32_t*) &readData) );
-
             return  *((int32_t*) &readData) ;
         }
 

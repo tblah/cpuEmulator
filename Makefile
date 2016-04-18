@@ -24,7 +24,7 @@ default: $(DEFAULT_TARGET)
 objects/Instruction.o: assembler/Instruction.cpp assembler/Instruction.h cpu/Opcodes.h
 	$(CPP) $(CPPOPTS) -o $@ -c assembler/Instruction.cpp
 
-test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest cpuTest
+test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest ramAddrTranTest cpuTest
 	@./registerTest
 	@./busTest
 	@./registerFileTest
@@ -32,6 +32,7 @@ test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest 
 	@./ramTest
 	@./decoderTest
 	@./muxTest
+	@./ramAddrTranTest
 	@./cpuTest
 
 cpuTest: objects/cpu.o objects/cpuTest.o objects/alu.o objects/Decoder.o objects/debug.o objects/Instruction.o
@@ -42,6 +43,12 @@ objects/cpuTest.o: cpu/CPU.h emulator/debug.h assembler/Instruction.h cpu/Opcode
 
 objects/cpu.o: emulator/*.h cpu/*.h cpu/CPU.cpp
 	$(CPP) $(CPPOPTS) -o $@ -c cpu/CPU.cpp
+
+ramAddrTranTest: objects/ramAddrTranTest.o objects/debug.o objects/Instruction.o
+	$(CPP) $(CPPOPTS) -o $@ objects/ramAddrTranTest.o objects/debug.o objects/Instruction.o
+
+objects/ramAddrTranTest.o: cpu/RamAddrTranslator.h cpu/ram.h test/ramAddrTranTest.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c test/ramAddrTranTest.cpp
 
 muxTest: objects/muxTest.o objects/debug.o
 	$(CPP) $(CPPOPTS) -o $@ objects/muxTest.o objects/debug.o
