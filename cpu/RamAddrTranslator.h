@@ -109,8 +109,8 @@ template <typename AddressType, unsigned int numBytes> class RamAddrTran {
         void printBuffer( void ) {
             // we don't know for sure that stdout is tied to a console and there are not any cross platform mechanisms that I know of
             // in the standard library to clear the console so just print some newlines.
-            //for ( unsigned int i = 0; i < 100; i++ )
-                //std::cout << std::endl;
+            for ( unsigned int i = 0; i < 100; i++ )
+                std::cout << std::endl;
 
             for ( unsigned int y = 0; y < 64; y++ ) {
                 for ( unsigned int x = 0; x < 60; x+= 4 ) {
