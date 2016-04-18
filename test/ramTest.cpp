@@ -39,7 +39,7 @@ int main( void ) {
     DUT.setAddress( 0 );
     DUT.clockTick();
     
-    if ( DUT.getOutput() != htobe32(data) )
+    if ( DUT.getOutput() != static_cast<int32_t>(htobe32(data)) )
         errExit( "Data were not preloaded into RAM correctly" );
     
     // write
@@ -55,7 +55,7 @@ int main( void ) {
     int32_t result = DUT.getOutput();
 
     // test that we got back what we wrote
-    if ( result != htobe32(100) )
+    if ( result != static_cast<int32_t>(htobe32(100)) )
         errExit( " RAM test failed. We did not read back what we wrote" );
 
     debug( "All test passed for RAM" );

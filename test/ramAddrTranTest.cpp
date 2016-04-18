@@ -40,7 +40,7 @@ int main( void ) {
     DUT.setReadingThisCycle( true );
     DUT.clockTick();
 
-    if ( DUT.getOutput() != htobe32(data) )
+    if ( DUT.getOutput() != static_cast<int32_t>(htobe32(data)) )
         errExit( "Data were not preloaded into RamAddrTran correctly" );
     
     // write to main memory
@@ -56,7 +56,7 @@ int main( void ) {
     int32_t result = DUT.getOutput();
 
     // test that we got back what we wrote
-    if ( result != htobe32(100) )
+    if ( result != static_cast<int32_t>(htobe32(100)) )
         errExit( "RamAddrTran test failed. We did not read back what we wrote to main memory" );
 
     // write to video memory

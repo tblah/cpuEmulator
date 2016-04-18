@@ -76,7 +76,7 @@ class RAM {
         }
 
         void setAddress( AddressType address ) {
-            if ( address > (numBytes-1) ) {
+            if ( address > static_cast<AddressType>(numBytes-1) ) {
                 errExit( "RAM: specified address does not exist" );
             }
 
