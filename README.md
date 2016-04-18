@@ -15,9 +15,14 @@ This was tested on 64-bit x86 Trisquel GNU+Linux 7 (GCC 4.8.4, GNU Make 3.81).
 
 ## Directory Structure
 test - Unit tests for things
+
 emulator - Things for emulating digital electronics. Not specific to the CPU design
+
 cpu - Implementation of the CPU
+
 objects - compiled but unlinked objects from the build
+
 assembler - a *very* simple assembler for generating memory images for the cpu to execute. I decided that making something able to parse files was overkill and so (for now) this will just use instances of Instruction.
+
 doc - Source files for the report on this coursework
 
