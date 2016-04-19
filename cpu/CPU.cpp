@@ -22,8 +22,8 @@
 inline void CPU::fetch( void ) {
     debugSignal( "cpu state", "fetch" );
     // read the next instruction from the RAM into the instruction register
-    ram->setReadingThisCycle( true );
     ram->setAddress( programCounter.getOutput() );
+    ram->setReadingThisCycle( true );
     
     controlUnitState.changeDriveSignal( ControlUnitStateEnum::Decode );   
 
@@ -87,6 +87,7 @@ inline void CPU::decode( void ) {
 
         case ( Opcode::nop ): 
         case ( Opcode::halt ):
+        case ( Opcode::printBuffer):
             // we can't skip back to fetch yet because PC has not got it's new value
             break;
 
@@ -223,16 +224,16 @@ inline void CPU::execute( void ) {
 
         case ( Opcode::load ):
             debugSignal( "cpu state", "load execute" );
-            ram->setReadingThisCycle( true );
             ram->setAddress( registers.getOut1() );
+            ram->setReadingThisCycle( true );
  
             programCounter.changeDriveSignal( PCplus4.getOutput() );
             break;
 
         case ( Opcode::store ):
             debugSignal( "cpu state", "store execute" );
-            ram->setReadingThisCycle( false ); // write
             ram->setAddress( registers.getOut1() );
+            ram->setReadingThisCycle( false ); // write
             ram->setDataIn( registers.getOut2() );
  
             programCounter.changeDriveSignal( PCplus4.getOutput() );
@@ -247,6 +248,15 @@ inline void CPU::execute( void ) {
             programCounter.changeDriveSignal( PCplus4.getOutput() );
              
             // no need to write anything. Skip to next instruction
+            controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
+            break;
+
+        case ( Opcode::printBuffer):
+            debugSignal( "cpu state", "serial write" );
+            ram->printBuffer();
+            programCounter.changeDriveSignal( PCplus4.getOutput() );
+
+            // skip writeback
             controlUnitState.changeDriveSignal( ControlUnitStateEnum::Fetch );
             break;
 
@@ -305,7 +315,7 @@ inline void CPU::write( void ) {
 }
 
 CPU::CPU( const std::vector<int32_t> &InitialRamData ) {
-    ram = new RAM<int32_t, 10240> ( InitialRamData );
+    ram = new RamAddrTran<int32_t, 10240> ( InitialRamData );
 
     halted.changeDriveSignal( false );
     halted.clockTick();

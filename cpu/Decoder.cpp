@@ -98,11 +98,12 @@ void Decoder::setMemoryWord( uint32_t inMemoryWord ) {
 
         case ( Opcode::nop ):
         case ( Opcode::halt ):
+        case ( Opcode::printBuffer ):
             // no arguements need to be processed
             break;
 
         default:
-            errExit( "decoding invalid opcode" );
+            errExit( "decoding invalid opcode (cpu/Decoder.cpp)" );
     }
 }
 

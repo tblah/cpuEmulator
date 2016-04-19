@@ -29,7 +29,8 @@
 #include "muxControlEnums.h"
 #include "../emulator/Signal.h"
 #include "ControlUnitState.h"
-#include "ram.h"
+//#include "ram.h"
+#include "RamAddrTranslator.h"
 #include "Opcodes.h"
 
 class CPU {
@@ -40,7 +41,7 @@ class CPU {
         RegisterFile<int32_t, uint8_t, 32> registers; // user registers
         
         // not really part of a cpu but included here for simplicity
-        RAM <int32_t, 10240>* ram; // 10240 bytes of ram
+        RamAddrTran<int32_t, 10240>* ram; // 10240 bytes of ram
 
         // special purpose registers
         Register<int32_t> programCounter;

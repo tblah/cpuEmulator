@@ -106,7 +106,7 @@ Instruction::Instruction( Opcode Op, uint8_t A ) {
 }
 
 Instruction::Instruction( Opcode Op ) {
-    if ( (Op != Opcode::halt) && (Op != Opcode::nop) )
+    if ( (Op != Opcode::halt) && (Op != Opcode::nop) && (Op != Opcode::printBuffer) )
         errExit( "Incorrect instruction type for opcode" );
 
     objectCode = 0;

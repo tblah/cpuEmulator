@@ -38,7 +38,7 @@ class Instruction {
             // constructor for jumpToReg, branchIfZero, branchIfPositive
             Instruction( Opcode Op, uint8_t A );
 
-            // constructor for nop, halt
+            // constructor for nop, halt and printBuffer
             Instruction( Opcode Op );
 
             // constructor for just a constant number

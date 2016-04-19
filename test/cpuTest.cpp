@@ -193,8 +193,22 @@ int main( void ) {
     else
         debug( "conditional branch test passed" );
 
+    debug( "" );
+
     // if add and sub work then nand and lshift definately work because the alu is 
     //      fully tested and the instructions work the same way
+
+    // check that we don't crash when running the print buffer instruction. We cannot test it's functionality 
+    // without messing about with exec's and pipes and that feels like overkill when I can just look at the console. 
+    // A more full test of it will be written in a different test program.
+    vector<Instruction> printBuffer;
+
+    printBuffer.push_back( Instruction( Opcode::printBuffer ) );
+    printBuffer.push_back( Instruction( Opcode::halt ) );
+
+    runInstructions( printBuffer ); // we are just checking that this manages to return
+    debug( "printBuffer test 1 passed" );
+
 
     debug( "All tests passed for CPU" );
     return EXIT_SUCCESS;

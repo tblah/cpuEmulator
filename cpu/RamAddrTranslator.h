@@ -51,9 +51,9 @@ template <typename AddressType, unsigned int numBytes> class RamAddrTran {
         // combinational logic translating an address to whatever it should be
         // the target memory is returned by refference becasue we need to return two arguments
         AddressType translateAddress( AddressType input, bool& videoAddr ) {
-            if ( input > (numBytes-1) ) {
+            if ( input > static_cast<AddressType>(numBytes-1) ) {
                 errExit( "Invalid memory address given to ramAddrTran" );
-            } else if ( input > (numBytes-4097) ) { // top 4096 addresses
+            } else if ( input > static_cast<AddressType>(numBytes-4097) ) { // top 4096 addresses
                 videoAddr = true;
                 return input - (numBytes - 4096); // pretty substantial combinational logic is needed to make this happen
                                      // if the cpu were being optimised to have a smaller footprint
