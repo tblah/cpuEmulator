@@ -30,6 +30,7 @@ class Instruction {
             Instruction( Opcode Op, uint8_t A, uint8_t B, uint8_t dest);
 
             // constructor for load and store
+            // A is the RAM address
             Instruction( Opcode Op, uint8_t A, uint8_t theOtherOne ); 
 
             // constructor for addImmediate and subImmedeate

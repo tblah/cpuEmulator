@@ -24,7 +24,7 @@ default: $(DEFAULT_TARGET)
 objects/Instruction.o: assembler/Instruction.cpp assembler/Instruction.h cpu/Opcodes.h
 	$(CPP) $(CPPOPTS) -o $@ -c assembler/Instruction.cpp
 
-test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest ramAddrTranTest cpuTest
+test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest ramAddrTranTest cpuTest cpuDemo
 	@./registerTest
 	@./busTest
 	@./registerFileTest
@@ -34,6 +34,13 @@ test: registerTest busTest registerFileTest aluTest ramTest decoderTest muxTest 
 	@./muxTest
 	@./ramAddrTranTest
 	@./cpuTest
+	@./cpuDemo 2>/dev/null
+
+cpuDemo: objects/cpu.o objects/cpuDemo.o objects/alu.o objects/Decoder.o objects/debug.o objects/Instruction.o
+	$(CPP) $(CPPOPTS) -o $@ objects/cpu.o objects/cpuDemo.o objects/alu.o objects/Decoder.o objects/debug.o objects/Instruction.o
+
+objects/cpuDemo.o: cpu/CPU.h emulator/debug.h assembler/Instruction.h cpu/Opcodes.h test/cpuDemo.cpp
+	$(CPP) $(CPPOPTS) -o $@ -c test/cpuDemo.cpp
 
 cpuTest: objects/cpu.o objects/cpuTest.o objects/alu.o objects/Decoder.o objects/debug.o objects/Instruction.o
 	$(CPP) $(CPPOPTS) -o $@ objects/cpu.o objects/cpuTest.o objects/alu.o objects/Decoder.o objects/debug.o objects/Instruction.o

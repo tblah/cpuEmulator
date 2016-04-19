@@ -34,6 +34,7 @@
 
 #include "ram.h" // this also includes most of the other headers we will need
 #include <iostream>
+#include <unistd.h>
 
 // the types are assumed to be numeric or atleast have those sorts of operators working
 // generally just keep the types as integers. In the context of the cpu, nothing else really makes sense
@@ -107,10 +108,13 @@ template <typename AddressType, unsigned int numBytes> class RamAddrTran {
 
         // send the video buffer to stdout
         void printBuffer( void ) {
-            // we don't know for sure that stdout is tied to a console and there are not any cross platform mechanisms that I know of
-            // in the standard library to clear the console so just print some newlines.
-            for ( unsigned int i = 0; i < 100; i++ )
-                std::cout << std::endl;
+            // clear the console
+            // source: https://stackoverflow.com/questions/228617/how-do-i-clear-the-console-in-both-windows-and-linux-using-c#228625
+            #ifdef WINDOWS
+                system("cls");
+            #else
+                system("clear");
+            #endif
 
             for ( unsigned int y = 0; y < 64; y++ ) {
                 for ( unsigned int x = 0; x < 60; x+= 4 ) {
@@ -127,7 +131,10 @@ template <typename AddressType, unsigned int numBytes> class RamAddrTran {
                 }
 
                 std::cout << std::endl;
-              }  
+             }  
+             debug( "Beginning artifitial pause to make the animation nicer" );
+             usleep(100); // make the animation happen slow enough that my terminal can keep up
+             debug( "Finished artificual pause" );
         }
 
         // passthrough to appropiate ram object

@@ -1,0 +1,35 @@
+addI r0 6
+jump r0
+"    "
+"Hell"
+"o_Wo"
+"rld!"
+addI r0 2 // jumps here, begin data preload
+load r10 <- ram[r1]
+addI r0 3
+load r11 <- ram[r1]
+addI r0 4
+load r12 <- ram[r1]
+addI r0 5
+load r13 <- ram[r1]
+addI r0 6144
+add r1 r0 r16 // i = 6144
+addI r0 10227
+add r1 r0 r15 // r15 = 10227
+addI r0 22				// start of loop addr goes here
+add r1 r0 r17 // r17 = start of loop addr
+addI r0	34				// halt addr goes here
+add r1 r0 r18 // r18 = halt addr
+sub r15 r16 r1 // r1 = 10227 - i, start of loop
+branchIfZero r18 // if i == 10227, jump to halt instruction
+store r16 r10 // ram[r16 = i] = r10 = "    "
+addI r16 1    // r1 = i+1
+add r1 r0 r16 // i(new) = r1 = i+1
+store r1 r11  // ram[r1] = r11 = "Hell"
+addI r1 4     // r1 += 4
+store r1 r12  // ram[r1] = r12 = "o Wo"
+addI r1 4     // r1 += 4
+store r1 r12  // ram[r1] = r13 = "rld!"
+printBuffer
+jumpToReg r17 // jump to start of loop
+halt

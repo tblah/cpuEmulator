@@ -22,3 +22,4 @@ report.bib*
 *.tex.bbl
 *.tex.blg
 ramAddrTranTest
+cpuDemo
