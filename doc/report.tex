@@ -17,7 +17,7 @@
 \begin{document}
 	\maketitle
 	\begin{abstract}
-		This document will describe the computer I designed for this coursework. It will also discuss the emulator written for the computer.
+		This document will describe the computer I designed and emulated for this coursework. The design and simulation are timing accurate and model to about the same detail as an implementation written in System Verilog.
 	\end{abstract}
 	
 	\section{Design of the Computer}
@@ -28,7 +28,7 @@
 			
 			To keep the control of the processor as simple as possible, the ISA follows a load-store architecture for main memory access. This results in fewer stages and reduced complexity in the execution of each instruction \cite{bigBook}. It was also decided to make all instructions the same length (one 32-bit word) for simplicity. This has the dissadvantage of (probably) a larger program size in memory \cite{bigBook}. It was not specified that we were to design for an embedded system and so this did not seem important. All data are encoded as Big-Endian. Finally, instructions do not need to be aligned to word boundaries: addresses in memory refer to individual bytes and the first byte of each (4-byte) instruction can be any byte. Individual byte addressing was chosen as a trade-off between flexibility in memory access and maximum possible addressable RAM. 
 			
-			There are 14 instructions implemented in the processor. Therefore, the op-code could have specified in just 4 bits. However, this would have left very little room for other instructions to be added. I wanted the processor to be extendible so a 5-bit op-code width was chosen. 
+			There are 15 instructions implemented in the processor. Therefore, the op-code could have specified in just 4 bits. However, this would have left very little room for other instructions to be added. I wanted the processor to be extendible so a 5-bit op-code width was chosen. 
 			
 			Studies in RISC machines shown that it is beneficial to include a large number of registers \cite{smallerBook}. Therefore a 5-bit register index field was chosen: allowing for 32 general purpose registers. This is also the approach taken in RISC-V \cite{riscv} and in MIPS \cite{bigBook}. Choosing these field widths was a trade-off because the more bits which were taken on the op-code and registers, fewer bits are left for the intermediate operand for the \textit{add-immediate} and \textit{sub-immediate} instructions (see upcoming sections). With fewer bits this immediate value looses range. The layout of the instructions can be found in Figure \ref{Fig:instructionBitmap}.
 			
@@ -67,38 +67,50 @@
 			
 			\textit{jump-if-positive} Was included to facilitate jumps if one register is larger than another. This would be implemented by first subtracting the registers and then jumping if the positive flag was set in the subtraction operation. 
 			
-			Originally, relative jump instructions were planned. However due to time considerations these were dropped. Relative jumping would have been implemented by moving the next program counter address calculation into a new stage between Execute and Register Write and using the ALU in the execute stage to calculate the relative address (see the next section and Section \ref{Sec::Datapath}.) 
+			Originally, relative jump instructions were planned. However due to time considerations these were dropped. Relative jumping would have been implemented by moving the next program counter address calculation into a new stage between Execute and Register Write and using the ALU in the execute stage to calculate the relative address (see Section \ref{sec:InstructionExec} and Section \ref{Sec::Datapath}.) 
 				
 			\subsubsection{Instructions With No Operands}
-				Two instructions were implemented which do not require arguments. These were \textit{nop} and \textit{halt}.
+				Three instructions were implemented which do not require arguments. These were \textit{nop}, \textit{halt} and \textit{printBuffer}.
 				
 				The \textit{nop} instruction does nothing. It was included for testing purposes. 
 				
-				The \textit{halt} instruction ends execution of the program. In the emulated computer this changes a flag to signal that the program has finished. In an actual computer this may turn off the power supply.
+				The \textit{halt} instruction ends execution of the program. In the emulated computer this changes a flag to signal that the program has finished. This made it easier to write automated tests for the design. In an actual computer this may drive a signal to turn off the power supply.
+				
+				The \textit{printBuffer} instruction writes the contents of the video memory to a display. In the simulation this was implemented by writing to the standard output file descriptor after executing a command to clear the console. In a real computer this may signal a display adapter with direct memory access to the video memory to begin outputting the frame in the video buffer to the display interface. For more information on the video memory see Section \ref{sec::splitMemory} on split memory.
+				
+		\subsection{Split Memory}
+			\label{sec::splitMemory}
+			The \textit{load} and \textit{store} instructions operate on a single 32-bit address space. However, there are actually two separate instances of the \texttt{RAM} template class: one for general purpose memory and one for video memory. The video memory takes the top 4096 virtual addresses in the total memory size and the rest is general purpose memory. For example, the simulator is configured with 10240 bytes of RAM. This means that addresses 0-6143 refer to the 6kB of general purpose memory. After this, the top 4096 addresses (6143-10239) refer to the video memory. This address translation is performed by the \texttt{RamAddrTran} template class. 
+			
+			The video memory stores a 64x64 pixel frame buffer where each pixel is stored as a single byte. In the simulation, that byte is displayed as an ASCII character so that the \textit{printBuffer} instruction could be modelled simply.
+			
+			The computer was originally designed without this split memory functionality and if the \textit{printBuffer} instruction was removed it could be configured without this feature (for example for a system with no display output). To accommodate this, the interface for \texttt{RamAddrTran} is a drop in replacement for \texttt{RAM}. Therefore subsequent sections will just refer to the memory address space from the \textit{load} and \textit{store} instruction's point of view: a single address space.
 		
 		\subsection{Instruction Execution}
+		\label{sec:InstructionExec}
 			The execution of an instruction is split into (up to) four stages: Instruction Fetch, Decode, Execute, Register Write. The Register Write stage is skipped for instructions which do not write to the general purpose registers: making these instructions run a little faster. A Datapath diagram illustrating most of this section can be found in Section \ref{Sec::Datapath} (at the end of this report).
 			
 			\subsubsection{Instruction Fetch}
 				In the instruction fetch stage, the instruction addressed by the contents of the Program Counter special purpose register is read from the RAM.
 				
 			\subsubsection{Decode}
-				On the next clock edge, the instruction is read from RAM's data bus\footnote{As discussed later, it is assumed that all RAM operations finish within one clock cycle. On a real machine this would not be true but I did not have time to implement the cache model extension task.} and decoded. With the instruction format shown in Figure \ref{Fig:instructionBitmap}, the decoding is very simple. Outputs A, B and Result only need to be wired directly to the correct bits of the input. The immediate value requires sign-extension to be a 32-bit value appropriate for input to the ALU. 
+				On the next clock edge, the instruction is read from the RAM's data bus\footnote{As discussed later, it is assumed that all RAM operations finish within one clock cycle. On a real machine this would not be true but I did not have time to implement the cache model extension task.} and decoded. With the instruction format shown in Figure \ref{Fig:instructionBitmap}, the decoding is very simple. Outputs A, B and Result only need to be wired directly to the correct bits of the input. The immediate value requires sign-extension to be a 32-bit value appropriate for input to the ALU. 
 				
 				The opcode, result and immediate outputs of the decoder are saved to special purpose registers so that they will be available in the next clock cycle. Arguments A and B are sent to the two read channels of the general purpose register file for reading. 
 				
-				Also in the decode stage, the ALU is used to calculate the program counter plus one word length and save this into the PCplus4 special purpose register. This is used in the execute stage to determine the next value of the program counter. 
+				Also in the decode stage, the ALU is used to calculate the program counter plus one word length and save this into the \texttt{PCplus4} special purpose register. This is used in the execute stage to determine the next value of the program counter. 
 			
 			\subsubsection{Execute}
 				On the next clock edge, the newly read data from the register file are used as follows depending upon the instruction type:
 
 				\begin{itemize}
 					\item For register-to-register instructions these data are used as the arguments to the ALU.
-					\item For the load instruction, the RAM control signal is set to read and output A of the register file is used as the address for the RAM.
-					\item For the store instruction, the ram control signal is set to write, output A of the register file is used as the address for the RAM and output B of the register file is used as the data to be written to the RAM.
+					\item For the \textit{load} instruction, the RAM control signal is set to read and output A of the register file is used as the address for the RAM.
+					\item For the \textit{store} instruction, the ram control signal is set to write, output A of the register file is used as the address for the RAM and output B of the register file is used as the data to be written to the RAM.
 					\item For immediate value instructions, the A output of the register file is used as the first argument to the ALU and the Immediate register output is the second argument to the ALU. 
-					\item For control transfer instructions, the A output of the register file is used as an input to the relevant multiplexer to ultimately choose the new value for the program counter. For the conditional jump operations, the output of the relevant ALU flag register is used to control the multiplexer between this value and the value of PCplus4. The ALU flag registers will have not yet clocked in the new values from the ALU from this cycle and so will output their values from the previous instruction. 
+					\item For control transfer instructions, the A output of the register file is used as an input to the relevant multiplexer to ultimately choose the new value for the program counter. For the conditional jump operations, the output of the relevant ALU flag register is used to control the multiplexer between this value and the value of \texttt{PCplus4}. The ALU flag registers will have not yet clocked in the new values from the ALU from this cycle and so will output their values from the previous instruction. 
 					\item \textit{halt} And \textit{nop} do nothing here. In a hardware implementation, \textit{halt} might change a control signal to the power supply. 
+					\item In simulation, \textit{printBuffer} writes the contents of the video memory to the standard output file descriptor. As already discussed, this would be different in a hardware implementation.
 				\end{itemize}								
 				 
 			\subsubsection{Register Write}
@@ -152,19 +164,21 @@
 	\section{Testing}
 	Every module is tested individually using the test programs contained in the \texttt{test} directory. 
 	
-	The computer is also tested as a whole using several assembly language programs in \texttt{test/cpuTest.cpp}. The programs are written symbolically using \texttt{Instruction } (\texttt{assembler/Instruction.cpp}) objects. \texttt{Instruction} can produce a correct machine code word for that assembly instruction. A \texttt{std::vector} of these assembled words is preloaded into the RAM before the processor begins operation.
+	The computer is also tested as a whole using several assembly language programs in \texttt{test/cpuTest.cpp} and \texttt{test/cpuDemo.cpp}. The programs are written symbolically using \texttt{Instruction } (\texttt{assembler/Instruction.cpp}) objects. \texttt{Instruction} can produce a correct machine code word for that assembly instruction. A \texttt{std::vector} of these assembled words is preloaded into the RAM before the processor begins operation.
 	
 	\texttt{RAM} also provides the \texttt{debugRead} method. \texttt{debugRead} reads straight from the \texttt{Register} array without modelling any real world hardware. This allows the tests for the whole computer to check that the correct value was written to the correct address in RAM at the end of the test program. 
 	
-	Signals can be captured to standard error (usually connected to the console which executed the tests) by defining the \texttt{DEBUG\_SIGNAL} preprocessor macro. Non-fatal warnings and information about test passes can be captured to standard error by defining \texttt{DEBUG}. Both of these macros are defined when building using the makefile provided with the source code. The printing functions can be found in \texttt{emulator/debug.h}
-
-	\printbibliography	
+	Signals can be captured to standard error (usually connected to the console which executed the tests) by defining the \texttt{DEBUG\_SIGNAL} preprocessor macro. Non-fatal warnings and information about test passes can be captured to standard error by defining \texttt{DEBUG}. Both of these macros are defined when building using the makefile provided with the source code. The printing functions can be found in \texttt{emulator/debug.h} and \texttt{emulator/debug.cpp}. 
 	
+	The \texttt{cpuDemo} test program (\texttt{tests/cpuDemo.cpp}) was written to show off the capabilities of the video memory. It animates a "Hello World!" message travelling across the screen.
+	%\pagebreak
+	\printbibliography	
+	%\pagebreak
 	\section{Appendix - Datapath Diagram}
 	\label{Sec::Datapath}
-	In order to make this diagram easier to read, some modules of the processor are drawn twice in different stages. This does not indicate different instances of these modules. For example, the ALU pictured in the Decode stage is the same ALU used in the Execute stage.
+	In order to make this diagram easier to read, some modules of the processor are drawn twice in different stages. This does not indicate different instances of these modules. For example, the ALU pictured in the Decode stage is the same ALU used in the Execute stage. See \texttt{doc/Datapath.png} for a larger version of the diagram.
 
-	\includegraphics[scale=0.80]{Datapath.png}
+	\includegraphics[scale=0.45]{Datapath.png}
 	
 
 \end{document}
